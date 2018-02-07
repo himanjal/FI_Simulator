@@ -84,10 +84,11 @@ def openFileC():
 def openFileXML():
     filename = askopenfile()
     file = untangle.parse(filename)
-    top.gdb_table.delete(0,END)
+    #top.gdb_table.delete(0,END)
     printOutput( "Opening XML File <{0}> ...".format(filename.name))
     faults = []
     top.xml_table.delete(0,END)
+    print top
     
     if programFile != "":
         connect()
