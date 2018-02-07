@@ -25,64 +25,72 @@ tempf = tempfile.TemporaryFile()
 pluginProcess = Popen('arm-none-eabi-gdb', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=tempf)
 programFile = ""
 newTriggger = ""
+faults = []
 
 # ***** Functions *****
 
 # Connect to QEMU
 
-def connect():
-    print "FILE ", programFile
-    print "\n"
-    subprocess.call("arm-linux-gnueabi-gcc -g {0} -o {1}-arm -static".format(programFile, programFile.split('.')[0]) , shell=True, stdout=subprocess.PIPE)
-    subprocess.call("fuser -n tcp -k 1234", shell=True,stdout=subprocess.PIPE)
-    qemuProcess = Popen("qemu-arm -singlestep -g 1234 {0}-arm".format(programFile.split('.')[0]), shell=True, stdout=subprocess.PIPE)
-    print "File ", programFile, " successfully compiled"
-    print "QEMU launched at port 1234"
-    print "\nConnecting to QEMU\n\n"
-    pluginProcess.stdin.write("file {0}-arm\n".format(programFile.split('.')[0]))
-    pluginProcess.stdin.write("target remote localhost: 1234\n")
-    pluginProcess.stdin.write("set pagination off\n")
-    print "Connected to Qemu using GDB"
+# def connect():
+#     print "FILE ", programFile
+#     print "\n"
+#     subprocess.call("arm-linux-gnueabi-gcc -g {0} -o {1}-arm -static".format(programFile, programFile.split('.')[0]) , shell=True, stdout=subprocess.PIPE)
+#     subprocess.call("fuser -n tcp -k 1234", shell=True,stdout=subprocess.PIPE)
+#     qemuProcess = Popen("qemu-arm -singlestep -g 1234 {0}-arm".format(programFile.split('.')[0]), shell=True, stdout=subprocess.PIPE)
+#     print "File ", programFile, " successfully compiled"
+#     print "QEMU launched at port 1234"
+#     print "\nConnecting to QEMU\n\n"
+#     pluginProcess.stdin.write("file {0}-arm\n".format(programFile.split('.')[0]))
+#     pluginProcess.stdin.write("target remote localhost: 1234\n")
+#     pluginProcess.stdin.write("set pagination off\n")
+#     print "Connected to Qemu using GDB"
 
 # Add Breakpoints
 
-def addBreakpoints():
-    bpNum = 1
-    for trigger in faults:
-        bp = trigger.bp
-        if bp[0:2] == "0x":
-            pluginProcess.stdin.write("B *" + bp + "\n")
-        else: pluginProcess.stdin.write("B " + bp + "\n")
-        pluginProcess.stdin.write("ignore " + str(bpNum) + " " + trigger.lp + "\n")
-        pluginProcess.stdin.write("commands\n")
-        pluginProcess.stdin.write("info R\n")
-        for reg in trigger.regList:
-            pluginProcess.stdin.write("set $" + reg + "=0\n")
-        pluginProcess.stdin.write("del " + str(bpNum) + "\n")
-        if bpNum == len(faults):
-            pluginProcess.stdin.write("B add\n")
-        pluginProcess.stdin.write("info R\n")
-        pluginProcess.stdin.write("c\n")
-        pluginProcess.stdin.write("end\n")
-        bpNum = bpNum + 1
+# def addBreakpoints():
+#     bpNum = 1
+#     for trigger in faults:
+#         bp = trigger.bp
+#         if bp[0:2] == "0x":
+#             pluginProcess.stdin.write("B *" + bp + "\n")
+#         else: pluginProcess.stdin.write("B " + bp + "\n")
+#         pluginProcess.stdin.write("ignore " + str(bpNum) + " " + trigger.lp + "\n")
+#         pluginProcess.stdin.write("commands\n")
+#         pluginProcess.stdin.write("info R\n")
+#         for reg in trigger.regList:
+#             pluginProcess.stdin.write("set $" + reg + "=0\n")
+#         pluginProcess.stdin.write("del " + str(bpNum) + "\n")
+#         if bpNum == len(faults):
+#             pluginProcess.stdin.write("B add\n")
+#         pluginProcess.stdin.write("info R\n")
+#         pluginProcess.stdin.write("c\n")
+#         pluginProcess.stdin.write("end\n")
+#         bpNum = bpNum + 1
 
 # ***** C File *****
 
+
+
+def printOutput(line):
+    print line
+    top.gdb_table.insert(END, line)
+
 def openFileC():
-    print "\nOpening C File..."
+    printOutput( "\nOpening C File...")
     programFile = askopenfile().name
     print programFile
 
-    if len(faults) > 0:
-        connect()
-        addBreakpoints()
+    # if len(faults) > 0:
+    #     connect()
+    #     addBreakpoints()
 
 # ***** XML File *****
 
 def openFileXML():
     filename = askopenfile()
     file = untangle.parse(filename)
-    print "Opening XML File <{0}> ...".format(filename.name)
+    top.gdb_table.delete(0,END)
+    printOutput( "Opening XML File <{0}> ...".format(filename.name))
     faults = []
     top.xml_table.delete(0,END)
     
