@@ -90,7 +90,7 @@ proc vTclWindow.top37 {base} {
     vTcl::widgets::core::toplevel::createCmd $top -class Toplevel \
         -background {#ffffff} -highlightcolor black 
     wm focusmodel $top passive
-    wm geometry $top 1000x1000+479+166
+    wm geometry $top 1000x1000+335+110
     update
     # set in toplevel.wgt.
     global vTcl
@@ -116,13 +116,13 @@ proc vTclWindow.top37 {base} {
     vTcl:DefineAlias "$site_3_0.lab43" "title_label" vTcl:WidgetProc "mainwindow" 1
     button $site_3_0.but39 \
         -activebackground {#d9d9d9} -activeforeground black \
-        -background {#d9d9d9} -foreground {#000000} -highlightcolor black \
-        -text {Open C File} 
+        -background {#d9d9d9} -command openFileC -foreground {#000000} \
+        -highlightcolor black -text {Open C File} 
     vTcl:DefineAlias "$site_3_0.but39" "open_c_file" vTcl:WidgetProc "mainwindow" 1
     button $site_3_0.but40 \
         -activebackground {#d9d9d9} -activeforeground black \
-        -background {#d9d9d9} -foreground {#000000} -highlightcolor black \
-        -text {Open XML File} 
+        -background {#d9d9d9} -command openFileXML -foreground {#000000} \
+        -highlightcolor black -text {Open XML File} 
     vTcl:DefineAlias "$site_3_0.but40" "open_xml_file" vTcl:WidgetProc "mainwindow" 1
     place $site_3_0.lab43 \
         -in $site_3_0 -x 9 -y 12 -width 425 -relwidth 0 -height 50 \

@@ -90,7 +90,7 @@ proc vTclWindow.top37 {base} {
     vTcl::widgets::core::toplevel::createCmd $top -class Toplevel \
         -background {#ffffff} -highlightcolor black 
     wm focusmodel $top passive
-    wm geometry $top 1000x1000+479+166
+    wm geometry $top 1000x1000+335+110
     update
     # set in toplevel.wgt.
     global vTcl

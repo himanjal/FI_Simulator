@@ -12,14 +12,11 @@ import subprocess
 import tempfile
 import time
 import ttk
-import backend
-
 
 # ***** Variables *****
 
 WIDTH = 1000
 HEIGHT = 1000
-global top
 
 tempf = tempfile.TemporaryFile()
 pluginProcess = Popen('arm-none-eabi-gdb', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=tempf)
@@ -69,8 +66,6 @@ faults = []
 
 # ***** C File *****
 
-
-
 def printOutput(line):
     print line
     top.gdb_table.insert(END, line)
@@ -97,6 +92,7 @@ def openFileXML():
     if programFile != "":
         connect()
         addBreakpoints()
+
     for item in file.xml.action:
 		newTrigger = trigger()
 		newTrigger.regList = []
@@ -147,6 +143,23 @@ class trigger:
 
 # ***** GUI *****
 
+
+import sys
+
+try:
+    from Tkinter import *
+except ImportError:
+    from tkinter import *
+
+try:
+    import ttk
+    py3 = 0
+except ImportError:
+    import tkinter.ttk as ttk
+    py3 = 1
+
+import backend
+
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root, top
@@ -170,6 +183,7 @@ def destroy_mainwindow():
     w.destroy()
     w = None
 
+
 class mainwindow:
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
@@ -179,141 +193,165 @@ class mainwindow:
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
         _ana1color = '#d9d9d9' # X11 color: 'gray85' 
         _ana2color = '#d9d9d9' # X11 color: 'gray85' 
-        font10 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
+        font10 = "-family {Bitstream Vera Serif} -size 20 -weight bold"  \
+            " -slant roman -underline 0 -overstrike 0"
+        font11 = "-family {DejaVu Sans} -size 10 -weight normal -slant"  \
+            " italic -underline 0 -overstrike 0"
+        font12 = "-family {DejaVu Sans} -size 12 -weight normal -slant"  \
+            " roman -underline 1 -overstrike 0"
+        font15 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
             "roman -underline 0 -overstrike 0"
-        font13 = "-family {DejaVu Sans} -size 10 -weight bold -slant "  \
+        font17 = "TkDefaultFont"
+        font18 = "TkDefaultFont"
+        font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
             "roman -underline 0 -overstrike 0"
-        font14 = "-family {DejaVu Sans} -size 12 -weight normal -slant"  \
-            " roman -underline 0 -overstrike 0"
-        font9 = "-family {Bitstream Vera Serif} -size 20 -weight bold "  \
-            "-slant roman -underline 0 -overstrike 0"
 
-        top.geometry("1000x1000+474+148")
+        top.geometry("1000x1000+335+110")
         top.title("mainwindow")
         top.configure(background="#ffffff")
         top.configure(highlightcolor="black")
 
+
+        # Title
+
         self.title_frame = Frame(top)
-        self.title_frame.place(relx=0.01, rely=0.01, relheight=0.1
-                , relwidth=0.98)
+        self.title_frame.place(relx=0.01, rely=0.01, relheight=0.08, relwidth=0.98)
         self.title_frame.configure(relief=GROOVE)
         self.title_frame.configure(borderwidth="2")
         self.title_frame.configure(relief=GROOVE)
-        self.title_frame.configure(width=-59)
+        self.title_frame.configure(width=980)
 
         self.title_label = Label(self.title_frame)
-        self.title_label.place(relx=0.29, rely=0.25, height=50, width=425)
+        self.title_label.place(relx=0.01, rely=0.16, height=50, width=425)
         self.title_label.configure(activebackground="#f9f9f9")
-        self.title_label.configure(font=font9)
+        self.title_label.configure(anchor=W)
+        self.title_label.configure(font=font10)
         self.title_label.configure(text='''Fault Injection Simulator''')
-        self.title_label.configure(width=425)
 
         self.open_c_file = Button(self.title_frame)
-        self.open_c_file.place(relx=0.85, rely=0.37, height=26, width=94)
+        self.open_c_file.place(relx=0.88, rely=0.29, height=26, width=94)
         self.open_c_file.configure(activebackground="#d9d9d9")
-        self.open_c_file.configure(command=openFileC)
         self.open_c_file.configure(text='''Open C File''')
 
         self.open_xml_file = Button(self.title_frame)
-        self.open_xml_file.place(relx=0.05, rely=0.37, height=26, width=111)
+        self.open_xml_file.place(relx=0.75, rely=0.29, height=26, width=111)
         self.open_xml_file.configure(activebackground="#d9d9d9")
-        self.open_xml_file.configure(command=openFileXML)
         self.open_xml_file.configure(text='''Open XML File''')
+        self.open_xml_file.configure(command=openFileXML)
+
+        # XML Table
 
         self.xml_frame = Frame(top)
-        self.xml_frame.place(relx=0.01, rely=0.12, relheight=0.43, relwidth=0.49)
-
+        self.xml_frame.place(relx=0.01, rely=0.09, relheight=0.3, relwidth=0.49)
         self.xml_frame.configure(relief=GROOVE)
         self.xml_frame.configure(borderwidth="2")
         self.xml_frame.configure(relief=GROOVE)
-        self.xml_frame.configure(width=510)
+        self.xml_frame.configure(width=485)
 
         self.xml_table = Listbox(self.xml_frame)
-        self.xml_table.place(relx=0.02, rely=0.21, relheight=0.77, relwidth=0.95)
-
-        self.xml_table.configure(font="TkFixedFont")
+        self.xml_table.place(relx=0.02, rely=0.17, relheight=0.8, relwidth=0.96)
+        self.xml_table.configure(font=font18)
         self.xml_table.configure(relief=RIDGE)
         self.xml_table.configure(selectbackground="#c4c4c4")
-        self.xml_table.configure(width=460)
-        self.xml_table.insert(END, "No XML File Inputted")
+        self.xml_table.configure(width=470)
 
         self.xml_title = Label(self.xml_frame)
-        self.xml_title.place(relx=0.45, rely=0.05, height=23, width=87)
+        self.xml_title.place(relx=0.02, rely=0.03, height=23, width=87)
         self.xml_title.configure(activebackground="#f9f9f9")
-        self.xml_title.configure(font=font10)
+        self.xml_title.configure(font=font12)
+        self.xml_title.configure(justify=LEFT)
         self.xml_title.configure(text='''XML Table''')
 
-        self.attributes = Label(self.xml_frame)
-        self.attributes.place(relx=0.02, rely=0.16, height=18, width=439)
-        self.attributes.configure(anchor=W)
-        self.attributes.configure(font=font13)
-        self.attributes.configure(justify=LEFT)
-        self.attributes.configure(text='''Breakpoint     Loop       Register                                Mask''')
-        self.attributes.configure(width=439)
+        self.xml_attributes = Label(self.xml_frame)
+        self.xml_attributes.place(relx=0.02, rely=0.1, height=18, width=439)
+        self.xml_attributes.configure(activebackground="#f9f9f9")
+        self.xml_attributes.configure(anchor=W)
+        self.xml_attributes.configure(font=font11)
+        self.xml_attributes.configure(justify=LEFT)
+        self.xml_attributes.configure(text='''Breakpoint             Loop              Register            Mask''')
+
+        # GDB Output
 
         self.gdb_frame = Frame(top)
-        self.gdb_frame.place(relx=0.01, rely=0.56, relheight=0.43, relwidth=0.49)
-
+        self.gdb_frame.place(relx=0.01, rely=0.39, relheight=0.55, relwidth=0.98)
         self.gdb_frame.configure(relief=GROOVE)
         self.gdb_frame.configure(borderwidth="2")
         self.gdb_frame.configure(relief=GROOVE)
-        self.gdb_frame.configure(width=510)
+        self.gdb_frame.configure(width=990)
+
+        self.gdb_title = Label(self.gdb_frame)
+        self.gdb_title.place(relx=0.01, rely=0.015, height=18, width=226)
+        self.gdb_title.configure(activebackground="#f9f9f9")
+        self.gdb_title.configure(anchor=W)
+        self.gdb_title.configure(font=font15)
+        self.gdb_title.configure(justify=LEFT)
+        self.gdb_title.configure(text='''GDB Output''')
 
         self.gdb_table = Listbox(self.gdb_frame)
-        self.gdb_table.place(relx=0.02, rely=0.16, relheight=0.81, relwidth=0.95)
-
+        self.gdb_table.place(relx=0.01, rely=0.05, relheight=0.93, relwidth=0.98)
         self.gdb_table.configure(background="white")
         self.gdb_table.configure(font="TkFixedFont")
         self.gdb_table.configure(selectbackground="#c4c4c4")
-        self.gdb_table.configure(width=460)
+        self.gdb_table.configure(width=970)
 
-        self.gdb_output = Label(self.gdb_frame)
-        self.gdb_output.place(relx=0.41, rely=0.07, height=18, width=126)
-        self.gdb_output.configure(activebackground="#f9f9f9")
-        self.gdb_output.configure(font=font10)
-        self.gdb_output.configure(text='''GDB Output''')
+        # Registers
 
-        self.register_frame = Frame(top)
-        self.register_frame.place(relx=0.51, rely=0.12, relheight=0.43
-                , relwidth=0.49)
-        self.register_frame.configure(relief=GROOVE)
-        self.register_frame.configure(borderwidth="2")
-        self.register_frame.configure(relief=GROOVE)
-        self.register_frame.configure(width=485)
+        self.reg_frame = Frame(top)
+        self.reg_frame.place(relx=0.5, rely=0.09, relheight=0.3, relwidth=0.49)
+        self.reg_frame.configure(relief=GROOVE)
+        self.reg_frame.configure(borderwidth="2")
+        self.reg_frame.configure(relief=GROOVE)
+        self.reg_frame.configure(width=485)
 
-        self.reg_title = Label(self.register_frame)
-        self.reg_title.place(relx=0.47, rely=0.05, height=23, width=78)
-        self.reg_title.configure(font=font14)
+        self.reg_title = Label(self.reg_frame)
+        self.reg_title.place(relx=0.02, rely=0.03, height=23, width=78)
+        self.reg_title.configure(activebackground="#f9f9f9")
+        self.reg_title.configure(anchor=W)
+        self.reg_title.configure(font=font12)
+        self.reg_title.configure(justify=LEFT)
         self.reg_title.configure(text='''Registers''')
 
-        self.reg_table = Listbox(self.register_frame)
-        self.reg_table.place(relx=0.02, rely=0.21, relheight=0.77, relwidth=0.95)
+        self.reg_attr = Label(self.reg_frame)
+        self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=414)
+        self.reg_attr.configure(activebackground="#f9f9f9")
+        self.reg_attr.configure(anchor=W)
+        self.reg_attr.configure(font=font11)
+        self.reg_attr.configure(text='''Name     Address     Value''')
 
-        self.reg_table.configure(font="TkFixedFont")
+        self.reg_table = Listbox(self.reg_frame)
+        self.reg_table.place(relx=0.02, rely=0.17, relheight=0.8, relwidth=0.96)
+        self.reg_table.configure(font=font17)
         self.reg_table.configure(relief=RIDGE)
         self.reg_table.configure(selectbackground="#c4c4c4")
-        self.reg_table.configure(width=460)
+        self.reg_table.configure(width=480)
 
-        self.breakpoint_frame = Frame(top)
-        self.breakpoint_frame.place(relx=0.51, rely=0.56, relheight=0.43
-                , relwidth=0.49)
-        self.breakpoint_frame.configure(relief=GROOVE)
-        self.breakpoint_frame.configure(borderwidth="2")
-        self.breakpoint_frame.configure(relief=GROOVE)
-        self.breakpoint_frame.configure(width=475)
+        # Command Line
 
-        self.breakpoint_title = Label(self.breakpoint_frame)
-        self.breakpoint_title.place(relx=0.45, rely=0.07, height=23, width=99)
-        self.breakpoint_title.configure(font=font14)
-        self.breakpoint_title.configure(text='''Breakpoints''')
+        self.command_frame = Frame(top)
+        self.command_frame.place(relx=0.01, rely=0.94, relheight=0.05, relwidth=0.98)
+        self.command_frame.configure(relief=GROOVE)
+        self.command_frame.configure(borderwidth="2")
+        self.command_frame.configure(relief=GROOVE)
+        self.command_frame.configure(width=990)
 
-        self.breakpoint_table = Listbox(self.breakpoint_frame)
-        self.breakpoint_table.place(relx=0.02, rely=0.17, relheight=0.81
-                , relwidth=0.95)
-        self.breakpoint_table.configure(background="white")
-        self.breakpoint_table.configure(font="TkFixedFont")
-        self.breakpoint_table.configure(selectbackground="#c4c4c4")
-        self.breakpoint_table.configure(width=460)
+        self.command_title = Label(self.command_frame)
+        self.command_title.place(relx=0.01, rely=0.27, height=23, width=46)
+        self.command_title.configure(activebackground="#f9f9f9")
+        self.command_title.configure(font=font9)
+        self.command_title.configure(text='''(gdb)''')
+
+        self.command_entry = Entry(self.command_frame)
+        self.command_entry.place(relx=0.07, rely=0.16,height=30, relwidth=0.84)
+        self.command_entry.configure(background="white")
+        self.command_entry.configure(font="TkFixedFont")
+        self.command_entry.configure(selectbackground="#c4c4c4")
+
+        self.command_enter = Button(self.command_frame)
+        self.command_enter.place(relx=0.93, rely=0.22, height=26, width=59)
+        self.command_enter.configure(activebackground="#d9d9d9")
+        self.command_enter.configure(text='''Enter''')
+
+
 
 
 
