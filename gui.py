@@ -13,22 +13,10 @@ from backend import initModel
 
 
 # ***** Variables *****
-
-WIDTH = 1000
-HEIGHT = 1000
-
-tempf = tempfile.TemporaryFile()
-pluginProcess = Popen('arm-none-eabi-gdb', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=tempf)
-programFile = ""
-newTriggger = ""
-faults = []
 entity = None
 
 # ***** Functions *****
 
-
-
-# ***** C File *****
 
 def printOutput(line):
     print line
@@ -45,52 +33,12 @@ def onClick_xmlFile():
 
     entity.importXML(filename)
 
-<<<<<<< HEAD
-    #top.gdb_table.delete(0,END)
-=======
-<<<<<<< HEAD
-def openFileXML():
-    filename = askopenfile()
-    file = untangle.parse(filename)
-    #top.gdb_table.delete(0,END)
-=======
-    top.gdb_table.delete(0,END)
->>>>>>> 11cbd0730cf4dc336854b970efdc6c922123e81f
->>>>>>> 9acbe944bbc619c89e55533ec675cea239eb8e83
     printOutput( "Opening XML File <{0}> ...".format(filename.name))
 
     top.xml_table.delete(0,END)
-<<<<<<< HEAD
-    print top
-    
-    if programFile != "":
-        connect()
-        addBreakpoints()
-
-    for item in file.xml.action:
-		newTrigger = trigger()
-		newTrigger.regList = []
-
-		for reg in item.rg['registerList'][1:-1].split(','):
-			newTrigger.regList.append(reg.split()[0])
-
-		#newTrigger.regList = item.rg['registerList']
-		
-		newTrigger.bp = item.bp['breakpointAddress']
-		newTrigger.lp = item.lp['loopCounter']
-		newTrigger.mask = item.mk['mask']
-		faults.append(newTrigger)
 	
-    for item in faults:
-=======
-    item_list = ""
     for item in entity.getFaults():
-<<<<<<< HEAD
-        item_list = "{0:30}{1:15}{2:32}{3:10}".format(item.bp,item.lp,item.regList,item.mask)
-=======
->>>>>>> 11cbd0730cf4dc336854b970efdc6c922123e81f
         item_list = "{0:15}{1:10}{2:32}{3:10}".format(item.bp,item.lp,item.regList,item.mask)
->>>>>>> 9acbe944bbc619c89e55533ec675cea239eb8e83
         top.xml_table.insert(END, item_list)
 
 
@@ -107,14 +55,6 @@ def onClick_cFile():
 
     entity.connect()
 
-
-class trigger:
-	bp = ""
-	lp =""
-	regList = []
-	mask = ""
-
-
 # ***** GUI *****
 
 
@@ -124,7 +64,6 @@ def vp_start_gui():
     root = Tk()
     top = mainwindow (root)
     entity = initModel(top)
-
     root.mainloop()
 
 
