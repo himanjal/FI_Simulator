@@ -6,10 +6,7 @@ For our Master Qualifying Project at WPI, we created an application to automate 
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-
-### Prerequisites
-
-#### Files
+### Files
 * gui.py
   * main function to run
 * gui.tcl
@@ -19,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 * Import Documents
   * .XML and .C Files
 
-#### Installations
+### Installations
 
 ```
 install untangle
@@ -40,26 +37,6 @@ $ python gui.py
 ```
 3. Press Enter Button
 ```
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
@@ -87,7 +64,7 @@ Add additional notes about how to deploy this on a live system
 - [x] Import XML file onto XML table
 - [x] Import C file onto "GDB Output"
 - [x] Seperate into Frontend and Backend
-- [ ] Connect button when both XML and C files are present
+- [x] Connect button when both XML and C files are present with connect button
 - [ ] Enter button working
 - [ ] Registers printed
 - [ ] Ready for Claypool (Thursday)
@@ -108,11 +85,8 @@ This project was completed under WPI and NVIDIA and cannot be used without permi
 
 ## Acknowledgments
 
-* NVIDIA
-  * Vincent Chen
-  * Andrew Tran
-* WPI
-  * Professor Claypool
+* NVIDIA - Vincent Chen and Andrew Tran
+* WPI - Professor Claypool
 * Oakwood Apartments
 
 Template taken from: https://gist.github.com/PurpleBooth/109311bb0361f32d87a2#file-readme-template-md
