@@ -2,6 +2,7 @@
 import sys
 from Tkinter import *
 from tkFileDialog import askopenfile
+from tkFileDialog import askopenfilename
 import untangle
 from subprocess import *
 import subprocess
@@ -37,11 +38,16 @@ def printOutput(line):
 
 def onClick_xmlFile():
     filename = None
-    while filename is None:
-        filename = askopenfile()
+    filename = askopenfile()
+
+    if filename is None:
+        return
 
     entity.importXML(filename)
 
+<<<<<<< HEAD
+    #top.gdb_table.delete(0,END)
+=======
 <<<<<<< HEAD
 def openFileXML():
     filename = askopenfile()
@@ -50,6 +56,7 @@ def openFileXML():
 =======
     top.gdb_table.delete(0,END)
 >>>>>>> 11cbd0730cf4dc336854b970efdc6c922123e81f
+>>>>>>> 9acbe944bbc619c89e55533ec675cea239eb8e83
     printOutput( "Opening XML File <{0}> ...".format(filename.name))
 
     top.xml_table.delete(0,END)
@@ -78,10 +85,27 @@ def openFileXML():
 =======
     item_list = ""
     for item in entity.getFaults():
+<<<<<<< HEAD
+        item_list = "{0:30}{1:15}{2:32}{3:10}".format(item.bp,item.lp,item.regList,item.mask)
+=======
 >>>>>>> 11cbd0730cf4dc336854b970efdc6c922123e81f
         item_list = "{0:15}{1:10}{2:32}{3:10}".format(item.bp,item.lp,item.regList,item.mask)
+>>>>>>> 9acbe944bbc619c89e55533ec675cea239eb8e83
         top.xml_table.insert(END, item_list)
 
+
+def onClick_cFile():
+    filename = None
+    filename = askopenfilename()
+
+    printOutput( "Importing C File <{0}> ...".format(filename))
+
+    if filename is None:
+        return
+    
+    entity.importCFile(filename)
+
+    entity.connect()
 
 
 class trigger:
@@ -108,6 +132,11 @@ def destroy_mainwindow():
     global w
     w.destroy()
     w = None
+
+
+def onClick_enter():
+    entity.readGDB()
+
 
 
 class mainwindow:
@@ -158,6 +187,7 @@ class mainwindow:
         self.open_c_file.place(relx=0.88, rely=0.29, height=26, width=94)
         self.open_c_file.configure(activebackground="#d9d9d9")
         self.open_c_file.configure(text='''Open C File''')
+        self.open_c_file.configure(command=onClick_cFile)
 
         self.open_xml_file = Button(self.title_frame)
         self.open_xml_file.place(relx=0.75, rely=0.29, height=26, width=111)
@@ -276,6 +306,10 @@ class mainwindow:
         self.command_enter.place(relx=0.93, rely=0.22, height=26, width=59)
         self.command_enter.configure(activebackground="#d9d9d9")
         self.command_enter.configure(text='''Enter''')
+        self.command_enter.configure(command=onClick_enter)
+
+
+
 
 
 
