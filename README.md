@@ -1,6 +1,6 @@
 # Fault Injection Simulator
 
-For our Master Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch. to collect information on a low level. This enabled us to then see if glitching would occur and the registers stay the same.
+For our Major Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch. to collect information on a low level. This enabled us to then see if glitching would occur and the registers stay the same.
 
 ## Getting Started
 
