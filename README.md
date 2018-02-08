@@ -1,26 +1,36 @@
-README.txt
+# Fault Injection Simulator
 
-Authors 
+## Authors 
 > Jon Metzger
 > Himanjal Sharma
 > Maryann O'Connell
 
-Run
-> $python gui.py
+## Files
+* gui.py
+* gui.tcl
+* backend.py
+* XML Documents
+* C Documents
+
+## Run
+> $ python gui.py
 
 
-Files
-> gui.py
-> gui.tcl
-> gui_support.py
-> XML Documents
+## Versions 1.x
 
 ===========================================================
 
-Version 1.0
-> Basic User Interface
-> Title, Open Buttons
-> XML Table, Registers, GDB Output, Breakpoints
-> * open XML insert into table and prints file name *
+### Version 1.1
+* Upload C file
+* seperated GUI and Backend
+* Output on GDB from C file
+
+===========================================================
+
+### Version 1.0
+* Basic User Interface
+* Title, Open Buttons
+* XML Table, Registers, GDB Output, Breakpoints
+* Open XML insert into table and prints file name *
 
 ===========================================================
