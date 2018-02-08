@@ -1,4 +1,5 @@
 # Fault Injection Simulator
+For our Master Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch.
 
 ## Authors 
 * Jon Metzger
@@ -15,8 +16,7 @@
 ## Run
 > $ python gui.py
 
-
-## Versions 1.x
+## History v1.x
 
 ### Version 1.1
 * Upload C file
@@ -28,5 +28,3 @@
 * Title, Open Buttons
 * XML Table, Registers, GDB Output, Breakpoints
 * Open XML insert into table and prints file name *
-
-===========================================================
