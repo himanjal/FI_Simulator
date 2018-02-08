@@ -48,15 +48,21 @@ def onClick_xmlFile():
 
     if filenameXML is None:
         return
-    
+    top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
     printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML.name)))
     
     top.xml_table.delete(0,END)	
-
+    i = 1
     for item in entity.getFaults():
-        item_list = "{0:15}{1:10}{2:32}{3:10}".format(item.bp,item.lp,item.regList,item.mask)
+        item_list = "{}".format(i).ljust(10) + \
+        "{}".format(item.bp).ljust(20) + \
+        "{}".format(item.lp).ljust(10) + \
+        "{}".format(item.regList).ljust(40) + \
+        "{}".format(item.mask).ljust(10)
+
         top.xml_table.insert(END, item_list)
+        i = i + 1
     
     top.open_c_file.configure(state='active')
     printOutput("Ready to Open C File...")
@@ -75,8 +81,9 @@ def onClick_cFile():
 
 # Function when clicking on the "Connect to Qemu" Button
 def onClick_connectQemu():
-	printOutput("Connected to Qemu Sucessfully ...")
+	printOutput("Connecting to Qemu ...")
 	entity.connect()
+	printOutput("Connected to Qemu Sucessfully ...")
 
 # Function when clicking on the "Enter" Button for the Command Line
 def onClick_enter():
@@ -162,13 +169,6 @@ class mainwindow:
         self.xml_frame.configure(relief=GROOVE)
         self.xml_frame.configure(width=485)
 
-        self.xml_table = Listbox(self.xml_frame)
-        self.xml_table.place(relx=0.02, rely=0.17, relheight=0.8, relwidth=0.96)
-        self.xml_table.configure(font=font18)
-        self.xml_table.configure(relief=RIDGE)
-        self.xml_table.configure(selectbackground="#c4c4c4")
-        self.xml_table.configure(width=470)
-
         self.xml_title = Label(self.xml_frame)
         self.xml_title.place(relx=0.02, rely=0.03, height=23, width=87)
         self.xml_title.configure(activebackground="#f9f9f9")
@@ -176,37 +176,21 @@ class mainwindow:
         self.xml_title.configure(justify=LEFT)
         self.xml_title.configure(text='''XML Table''')
 
-        self.xml_attributes = Label(self.xml_frame)
-        self.xml_attributes.place(relx=0.02, rely=0.1, height=18, width=439)
-        self.xml_attributes.configure(activebackground="#f9f9f9")
-        self.xml_attributes.configure(anchor=W)
-        self.xml_attributes.configure(font=font11)
-        self.xml_attributes.configure(justify=LEFT)
-        self.xml_attributes.configure(text='''Breakpoint             Loop              Register            Mask''')
+        self.xml_attr = Label(self.xml_frame)
+        self.xml_attr.place(relx=0.02, rely=0.1, height=18, width=439)
+        self.xml_attr.configure(activebackground="#f9f9f9")
+        self.xml_attr.configure(anchor=W)
+        self.xml_attr.configure(font=font11)
+        self.xml_attr.configure(justify=LEFT)
+        self.xml_attr.configure(text='''Num   Breakpoint      Loop   Register                                 Mask''')
 
-    def gdb(self, top):
-
-        self.gdb_frame = Frame(top)
-        self.gdb_frame.place(relx=0.01, rely=0.39, relheight=0.55, relwidth=0.98)
-        self.gdb_frame.configure(relief=GROOVE)
-        self.gdb_frame.configure(borderwidth="2")
-        self.gdb_frame.configure(relief=GROOVE)
-        self.gdb_frame.configure(width=990)
-
-        self.gdb_title = Label(self.gdb_frame)
-        self.gdb_title.place(relx=0.01, rely=0.015, height=18, width=226)
-        self.gdb_title.configure(activebackground="#f9f9f9")
-        self.gdb_title.configure(anchor=W)
-        self.gdb_title.configure(font=font15)
-        self.gdb_title.configure(justify=LEFT)
-        self.gdb_title.configure(text='''GDB Output''')
-
-        self.gdb_table = Listbox(self.gdb_frame)
-        self.gdb_table.place(relx=0.01, rely=0.05, relheight=0.93, relwidth=0.98)
-        self.gdb_table.configure(background="white")
-        self.gdb_table.configure(font="TkFixedFont")
-        self.gdb_table.configure(selectbackground="#c4c4c4")
-        self.gdb_table.configure(width=970)
+        self.xml_table = Listbox(self.xml_frame)
+        self.xml_table.place(relx=0.02, rely=0.17, relheight=0.8, relwidth=0.96)
+        self.xml_table.configure(font=font18)
+        self.xml_table.configure(relief=RIDGE)
+        self.xml_table.configure(selectbackground="#c4c4c4")
+        self.xml_table.configure(width=470)
+        self.xml_table.insert(END,'''XML not yet Imported''')
 
     def reg(self, top):
 
@@ -238,6 +222,32 @@ class mainwindow:
         self.reg_table.configure(relief=RIDGE)
         self.reg_table.configure(selectbackground="#c4c4c4")
         self.reg_table.configure(width=480)
+        #self.reg_table.insert(END,'''Info R not yet implemented''')
+
+    def gdb(self, top):
+
+        self.gdb_frame = Frame(top)
+        self.gdb_frame.place(relx=0.01, rely=0.39, relheight=0.55, relwidth=0.98)
+        self.gdb_frame.configure(relief=GROOVE)
+        self.gdb_frame.configure(borderwidth="2")
+        self.gdb_frame.configure(relief=GROOVE)
+        self.gdb_frame.configure(width=990)
+
+        self.gdb_title = Label(self.gdb_frame)
+        self.gdb_title.place(relx=0.01, rely=0.015, height=18, width=226)
+        self.gdb_title.configure(activebackground="#f9f9f9")
+        self.gdb_title.configure(anchor=W)
+        self.gdb_title.configure(font=font12)
+        self.gdb_title.configure(justify=LEFT)
+        self.gdb_title.configure(text='''GNU Debugger''')
+
+        self.gdb_table = Listbox(self.gdb_frame)
+        self.gdb_table.place(relx=0.01, rely=0.06, relheight=0.92, relwidth=0.98)
+        self.gdb_table.configure(background="white")
+        self.gdb_table.configure(font="TkFixedFont")
+        self.gdb_table.configure(selectbackground="#c4c4c4")
+        self.gdb_table.configure(width=970)
+        self.gdb_table.insert(END, '''Nothing Imported''')
 
     def command(self, top):
 
@@ -259,7 +269,8 @@ class mainwindow:
         self.command_entry.configure(background="white")
         self.command_entry.configure(font="TkFixedFont")
         self.command_entry.configure(selectbackground="#c4c4c4")
-        self.command_entry.bind('<Return>', onClick_enter)
+
+        #self.command_entry.bind('<Return>', onClick_enter)
 
         self.command_enter = Button(self.command_frame)
         self.command_enter.place(relx=0.93, rely=0.22, height=26, width=59)

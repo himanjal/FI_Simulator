@@ -117,7 +117,7 @@ class Model:
     	for text in line.split('\n'):
     		row = ""
     		for word in text.split():
-    			row = row + word + "\t"
+    			row = "{0}{1:12}".format(row, word)
     		self.topLevel.reg_table.insert(END, row)
 
 
