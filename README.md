@@ -3,12 +3,12 @@
 > For our Master Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch. to collect information on a low level. This enabled us to then see if glitching would occur and the registers stay the same.
 
 ## Run Program
-> $ python gui.py
+$ python gui.py
 
 ## Instructions
-> Open XML File located in xml_documents directory
-> Open C File located in c_documents directory
-> Press Enter Button
+* Open XML File located in xml_documents directory
+* Open C File located in c_documents directory
+* Press Enter Button
 
 ## Authors 
 * Jon Metzger
