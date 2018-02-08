@@ -56,14 +56,17 @@ class Model:
         subprocess.call("arm-linux-gnueabi-gcc -g {0} -o {1}-arm -static".format(file, file.split('.')[0]) , shell=True, stdout=subprocess.PIPE)
         subprocess.call("fuser -n tcp -k 1234", shell=True,stdout=subprocess.PIPE)
         qemuProcess = Popen("qemu-arm -singlestep -g 1234 {0}-arm".format(file.split('.')[0]), shell=True, stdout=subprocess.PIPE)
-        self.printOutput("QEMU launched on port 1234")
+        #self.printOutput("QEMU launched on port 1234")
 
-        pluginProcess = Popen('arm-none-eabi-gdb', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=self.tempf)
-        pluginProcess.stdin.write("file {0}-arm\n".format(file.split('.')[0]))
-        pluginProcess.stdin.write("target remote localhost: 1234\n")
-        pluginProcess.stdin.write("set pagination off\n")
+        self.pluginProcess = Popen('arm-none-eabi-gdb', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=self.tempf)
+        self.pluginProcess.stdin.write("file {0}-arm\n".format(file.split('.')[0]))
+        self.pluginProcess.stdin.write("target remote localhost: 1234\n")
+        self.pluginProcess.stdin.write("set pagination off\n")
 
-        self.printOutput("GDB Connected to QEMU")
+        #self.printOutput("GDB Connected to QEMU")
+        self.readGDB()
+        self.addBreakpoints()
+
 
 
 
@@ -91,8 +94,8 @@ class Model:
             
             self.pluginProcess.stdin.write("del " + str(bpNum) + "\n")
 
-            if bpNum == len(faults):
-                self.pluginProcess.stdin.write("B add\n")
+            # if bpNum == len(faults):
+            #     self.pluginProcess.stdin.write("B add\n")
             
             self.pluginProcess.stdin.write("info R\n")
 
@@ -101,12 +104,37 @@ class Model:
             self.pluginProcess.stdin.write("end\n")
 
             bpNum = bpNum + 1 
+            self.readGDB()
         
+
+
+    def readReg(self):
+
+    	time.sleep(0.1)
+    	self.tempf.seek(self.pointer)
+    	line = self.tempf.read()
+    	self.pointer = self.tempf.tell()
+    	for text in line.split('\n'):
+    		row = ""
+    		for word in text.split():
+    			row = row + word + "\t"
+    		self.topLevel.reg_table.insert(END, row)
+
+
+
+    def sendCommand(self, line):
+    	self.pluginProcess.stdin.write(line + "\n")
+
+    	if line == "info R":
+    		self.readReg()
+    	else:
+    		self.readGDB()
 
 
 
 
     def readGDB(self):
+    	time.sleep(0.1)
         self.tempf.seek(self.pointer)
         for line in self.tempf.read().split('\n'):
             self.printOutput(line)

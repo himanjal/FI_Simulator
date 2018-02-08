@@ -80,7 +80,8 @@ def onClick_connectQemu():
 
 # Function when clicking on the "Enter" Button for the Command Line
 def onClick_enter():
-    entity.readGDB()
+    entity.sendCommand(top.command_entry.get())
+    #ity.readGDB()
 
 # ***** GUI *****
 
@@ -258,6 +259,7 @@ class mainwindow:
         self.command_entry.configure(background="white")
         self.command_entry.configure(font="TkFixedFont")
         self.command_entry.configure(selectbackground="#c4c4c4")
+        self.command_entry.bind('<Return>', onClick_enter)
 
         self.command_enter = Button(self.command_frame)
         self.command_enter.place(relx=0.93, rely=0.22, height=26, width=59)
