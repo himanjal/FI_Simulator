@@ -74,16 +74,15 @@ def onClick_cFile():
         return
     
     entity.importCFile(filenameC)
-    printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameC)))
+    printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameC)))
 
     top.connect_qemu.configure(state='active')
     printOutput("Ready to Connect to QEMU...")
 
 # Function when clicking on the "Connect to Qemu" Button
 def onClick_connectQemu():
-	printOutput("Connecting to Qemu ...")
-	entity.connect()
-	printOutput("Connected to Qemu Sucessfully ...")
+    entity.connect()
+	#printOutput("Connected to Qemu Sucessfully ...")
 
 # Function when clicking on the "Enter" Button for the Command Line
 def onClick_enter():

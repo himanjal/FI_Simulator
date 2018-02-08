@@ -31,7 +31,11 @@ int main()
 
 		printf("%d\t%d\n",a,b);
 
+
+
 	}
+
+	printf("EXITED");
 }
 
 

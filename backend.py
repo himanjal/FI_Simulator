@@ -33,8 +33,10 @@ class Model:
 
 
     def printOutput(self, line):
-        print line
+        #print line
         self.topLevel.gdb_table.insert(END, line)
+        self.topLevel.gdb_table.update()
+        self.topLevel.gdb_table.see("end")
 
 
 
@@ -55,7 +57,7 @@ class Model:
         file = self.cFile
         subprocess.call("arm-linux-gnueabi-gcc -g {0} -o {1}-arm -static".format(file, file.split('.')[0]) , shell=True, stdout=subprocess.PIPE)
         subprocess.call("fuser -n tcp -k 1234", shell=True,stdout=subprocess.PIPE)
-        qemuProcess = Popen("qemu-arm -singlestep -g 1234 {0}-arm".format(file.split('.')[0]), shell=True, stdout=subprocess.PIPE)
+        qemuProcess = Popen("qemu-arm -singlestep -g 1234 {0}-arm".format(file.split('.')[0]), shell=True)
         #self.printOutput("QEMU launched on port 1234")
 
         self.pluginProcess = Popen('arm-none-eabi-gdb', stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=self.tempf)
@@ -65,6 +67,7 @@ class Model:
 
         #self.printOutput("GDB Connected to QEMU")
         self.readGDB()
+        self.sendCommand("info R")
         self.addBreakpoints()
 
 
@@ -114,7 +117,7 @@ class Model:
     	self.tempf.seek(self.pointer)
     	line = self.tempf.read()
     	self.pointer = self.tempf.tell()
-    	for text in line.split('\n'):
+    	for text in line.split('\n')[:-1]:
     		row = ""
     		for word in text.split():
     			row = "{0}{1:12}".format(row, word)
