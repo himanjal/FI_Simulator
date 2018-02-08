@@ -1,9 +1,9 @@
 # Fault Injection Simulator
 
 ## Authors 
-> Jon Metzger
-> Himanjal Sharma
-> Maryann O'Connell
+* Jon Metzger
+* Himanjal Sharma
+* Maryann O'Connell
 
 ## Files
 * gui.py
@@ -18,14 +18,10 @@
 
 ## Versions 1.x
 
-===========================================================
-
 ### Version 1.1
 * Upload C file
 * seperated GUI and Backend
 * Output on GDB from C file
-
-===========================================================
 
 ### Version 1.0
 * Basic User Interface
