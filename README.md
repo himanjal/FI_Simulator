@@ -6,9 +6,9 @@
 $ python gui.py
 
 ## Instructions
-* Open XML File located in xml_documents directory
-* Open C File located in c_documents directory
-* Press Enter Button
+1. Open XML File located in xml_documents directory
+2. Open C File located in c_documents directory
+3. Press Enter Button
 
 ## Authors 
 * Jon Metzger
