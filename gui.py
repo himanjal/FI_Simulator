@@ -10,57 +10,82 @@ import tempfile
 import time
 import ttk
 from backend import initModel
+import os
 
 
 # ***** Variables *****
 entity = None
-filenameXML = None
-filenameC = None
+
+_bgcolor = '#d9d9d9'  # X11 color: 'gray85'
+_fgcolor = '#000000'  # X11 color: 'black'
+_compcolor = '#d9d9d9' # X11 color: 'gray85'
+_ana1color = '#d9d9d9' # X11 color: 'gray85' 
+_ana2color = '#d9d9d9' # X11 color: 'gray85' 
+font10 = "-family {Bitstream Vera Serif} -size 20 -weight bold"  \
+    " -slant roman -underline 0 -overstrike 0"
+font11 = "-family {DejaVu Sans} -size 10 -weight normal -slant"  \
+    " italic -underline 0 -overstrike 0"
+font12 = "-family {DejaVu Sans} -size 12 -weight normal -slant"  \
+    " roman -underline 1 -overstrike 0"
+font15 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
+    "roman -underline 0 -overstrike 0"
+font17 = "TkDefaultFont"
+font18 = "TkDefaultFont"
+font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
+    "roman -underline 0 -overstrike 0"
 
 # ***** Functions *****
 
-
+# Insert print terminal now on GDB Output
 def printOutput(line):
-    print line
-    top.gdb_table.insert(END, line)
+    output = " > [ " + line + " ]"
+    print output
+    top.gdb_table.insert(END, output)
 
-# ***** XML File *****
-
+# Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
-
     filenameXML = askopenfile()
 
     if filenameXML is None:
         return
-
+    
     entity.importXML(filenameXML)
+    printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML.name)))
+    
+    top.xml_table.delete(0,END)	
 
-    printOutput( "Opening XML File <{0}> ...".format(filenameXML.name))
-
-    top.xml_table.delete(0,END)
-	
     for item in entity.getFaults():
         item_list = "{0:15}{1:10}{2:32}{3:10}".format(item.bp,item.lp,item.regList,item.mask)
         top.xml_table.insert(END, item_list)
+    
+    top.open_c_file.configure(state='active')
+    printOutput("Ready to Open C File...")
 
-
+# Function when clicking on the "Open C File" Button
 def onClick_cFile():
-
     filenameC = askopenfilename()
-
-    printOutput( "Importing C File <{0}> ...".format(filenameC))
-
     if filenameC is None:
         return
     
     entity.importCFile(filenameC)
+    printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameC)))
 
-    entity.connect()
+    top.connect_qemu.configure(state='active')
+    printOutput("Ready to Connect to QEMU...")
+
+# Function when clicking on the "Connect to Qemu" Button
+def onClick_connectQemu():
+	printOutput("Connected to Qemu Sucessfully ...")
+	entity.connect()
+
+# Function when clicking on the "Enter" Button for the Command Line
+def onClick_enter():
+    entity.readGDB()
 
 # ***** GUI *****
 
-
-def vp_start_gui():
+# When Creating Application
+def create_mainwindow():
     '''Starting point when module is the main routine.'''
     global val, w, root, top, entity
     root = Tk()
@@ -68,48 +93,30 @@ def vp_start_gui():
     entity = initModel(top)
     root.mainloop()
 
-
+# When Exiting Application
 def destroy_mainwindow():
     global w
     w.destroy()
     w = None
 
-
-def onClick_enter():
-    entity.readGDB()
-
-def onClick_connectQemu():
-	printOutput( "Connecting to Qemu using <{0} and {1}> ...".format(filenameXML, filenameC))
-
+# GUI Core
 class mainwindow:
+
     def __init__(self, top=None):
-        '''This class configures and populates the toplevel window.
-           top is the toplevel containing window.'''
-        _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-        _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85' 
-        _ana2color = '#d9d9d9' # X11 color: 'gray85' 
-        font10 = "-family {Bitstream Vera Serif} -size 20 -weight bold"  \
-            " -slant roman -underline 0 -overstrike 0"
-        font11 = "-family {DejaVu Sans} -size 10 -weight normal -slant"  \
-            " italic -underline 0 -overstrike 0"
-        font12 = "-family {DejaVu Sans} -size 12 -weight normal -slant"  \
-            " roman -underline 1 -overstrike 0"
-        font15 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
-            "roman -underline 0 -overstrike 0"
-        font17 = "TkDefaultFont"
-        font18 = "TkDefaultFont"
-        font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
-            "roman -underline 0 -overstrike 0"
 
         top.geometry("1000x1000+335+110")
         top.title("mainwindow")
         top.configure(background="#ffffff")
         top.configure(highlightcolor="black")
 
+        self.title(top)
+        self.xml(top)
+        self.gdb(top)
+        self.reg(top)
+        self.command(top)
 
-        # Title
+
+    def title(self, top):
 
         self.title_frame = Frame(top)
         self.title_frame.place(relx=0.01, rely=0.01, relheight=0.08, relwidth=0.98)
@@ -136,14 +143,16 @@ class mainwindow:
         self.open_c_file.configure(activebackground="#d9d9d9")
         self.open_c_file.configure(text='''2) Open C File''')
         self.open_c_file.configure(command=onClick_cFile)
+        self.open_c_file.configure(state='disabled')
 
         self.connect_qemu = Button(self.title_frame)
         self.connect_qemu.place(relx=0.81, rely=0.29, height=30, width=150)
         self.connect_qemu.configure(activebackground="#d9d9d9")
         self.connect_qemu.configure(text='''3) Connect To Qemu''')
         self.connect_qemu.configure(command=onClick_connectQemu)
+        self.connect_qemu.configure(state='disabled')
 
-        # XML Table
+    def xml(self, top):
 
         self.xml_frame = Frame(top)
         self.xml_frame.place(relx=0.01, rely=0.09, relheight=0.3, relwidth=0.49)
@@ -174,7 +183,7 @@ class mainwindow:
         self.xml_attributes.configure(justify=LEFT)
         self.xml_attributes.configure(text='''Breakpoint             Loop              Register            Mask''')
 
-        # GDB Output
+    def gdb(self, top):
 
         self.gdb_frame = Frame(top)
         self.gdb_frame.place(relx=0.01, rely=0.39, relheight=0.55, relwidth=0.98)
@@ -198,7 +207,7 @@ class mainwindow:
         self.gdb_table.configure(selectbackground="#c4c4c4")
         self.gdb_table.configure(width=970)
 
-        # Registers
+    def reg(self, top):
 
         self.reg_frame = Frame(top)
         self.reg_frame.place(relx=0.5, rely=0.09, relheight=0.3, relwidth=0.49)
@@ -229,7 +238,7 @@ class mainwindow:
         self.reg_table.configure(selectbackground="#c4c4c4")
         self.reg_table.configure(width=480)
 
-        # Command Line
+    def command(self, top):
 
         self.command_frame = Frame(top)
         self.command_frame.place(relx=0.01, rely=0.94, relheight=0.05, relwidth=0.98)
@@ -256,16 +265,7 @@ class mainwindow:
         self.command_enter.configure(text='''Enter''')
         self.command_enter.configure(command=onClick_enter)
 
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
-    vp_start_gui()
-
+    create_mainwindow()
 
 # ***** EOF *****
