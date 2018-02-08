@@ -1,5 +1,7 @@
 # Fault Injection Simulator
-For our Master Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch.
+
+> For our Master Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch. to collect information on a low level. This enabled us to then see if glitching would occur and the registers stay the same.
+
 
 ## Authors 
 * Jon Metzger
@@ -8,10 +10,14 @@ For our Master Qualifying Project at WPI, we created an application to automate 
 
 ## Files
 * gui.py
+  * main function to run
 * gui.tcl
+  * program to open with PAGE
 * backend.py
-* XML Documents
-* C Documents
+  * helper file for backend functions
+* Import Documents
+  * .XML
+  * .C
 
 ## Run
 > $ python gui.py
