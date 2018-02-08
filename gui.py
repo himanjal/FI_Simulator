@@ -14,6 +14,8 @@ from backend import initModel
 
 # ***** Variables *****
 entity = None
+filenameXML = None
+filenameC = None
 
 # ***** Functions *****
 
@@ -25,15 +27,15 @@ def printOutput(line):
 # ***** XML File *****
 
 def onClick_xmlFile():
-    filename = None
-    filename = askopenfile()
 
-    if filename is None:
+    filenameXML = askopenfile()
+
+    if filenameXML is None:
         return
 
-    entity.importXML(filename)
+    entity.importXML(filenameXML)
 
-    printOutput( "Opening XML File <{0}> ...".format(filename.name))
+    printOutput( "Opening XML File <{0}> ...".format(filenameXML.name))
 
     top.xml_table.delete(0,END)
 	
@@ -43,15 +45,15 @@ def onClick_xmlFile():
 
 
 def onClick_cFile():
-    filename = None
-    filename = askopenfilename()
 
-    printOutput( "Importing C File <{0}> ...".format(filename))
+    filenameC = askopenfilename()
 
-    if filename is None:
+    printOutput( "Importing C File <{0}> ...".format(filenameC))
+
+    if filenameC is None:
         return
     
-    entity.importCFile(filename)
+    entity.importCFile(filenameC)
 
     entity.connect()
 
@@ -76,7 +78,8 @@ def destroy_mainwindow():
 def onClick_enter():
     entity.readGDB()
 
-
+def onClick_connectQemu():
+	printOutput( "Connecting to Qemu using <{0} and {1}> ...".format(filenameXML, filenameC))
 
 class mainwindow:
     def __init__(self, top=None):
@@ -122,17 +125,23 @@ class mainwindow:
         self.title_label.configure(font=font10)
         self.title_label.configure(text='''Fault Injection Simulator''')
 
+        self.open_xml_file = Button(self.title_frame)
+        self.open_xml_file.place(relx=0.47, rely=0.29, height=30, width=150)
+        self.open_xml_file.configure(activebackground="#d9d9d9")
+        self.open_xml_file.configure(text='''1) Open XML File''')
+        self.open_xml_file.configure(command=onClick_xmlFile)
+
         self.open_c_file = Button(self.title_frame)
-        self.open_c_file.place(relx=0.88, rely=0.29, height=26, width=94)
+        self.open_c_file.place(relx=0.64, rely=0.29, height=30, width=150)
         self.open_c_file.configure(activebackground="#d9d9d9")
-        self.open_c_file.configure(text='''Open C File''')
+        self.open_c_file.configure(text='''2) Open C File''')
         self.open_c_file.configure(command=onClick_cFile)
 
-        self.open_xml_file = Button(self.title_frame)
-        self.open_xml_file.place(relx=0.75, rely=0.29, height=26, width=111)
-        self.open_xml_file.configure(activebackground="#d9d9d9")
-        self.open_xml_file.configure(text='''Open XML File''')
-        self.open_xml_file.configure(command=onClick_xmlFile)
+        self.connect_qemu = Button(self.title_frame)
+        self.connect_qemu.place(relx=0.81, rely=0.29, height=30, width=150)
+        self.connect_qemu.configure(activebackground="#d9d9d9")
+        self.connect_qemu.configure(text='''3) Connect To Qemu''')
+        self.connect_qemu.configure(command=onClick_connectQemu)
 
         # XML Table
 
