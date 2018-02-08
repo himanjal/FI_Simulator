@@ -22,7 +22,7 @@ These instructions will get you a copy of the project up and running on your loc
 install untangle
 ```
 
-## Running the Application
+### Running the Application
 
 $ python gui.py
 
@@ -75,9 +75,9 @@ $ python gui.py
 
 ## Authors
 
-Jon Metzger
-Himanjal Sharma
-Maryann O'Connell
+* Jon Metzger
+* Himanjal Sharma
+* Maryann O'Connell
 
 ## License
 
