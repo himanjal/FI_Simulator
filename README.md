@@ -22,15 +22,30 @@
 ## Run
 > $ python gui.py
 
+## Tasks
+- [x] Complete GUI Layout
+- [x] Import XML file onto XML table
+- [x] Import C file onto "GDB Output"
+- [x] Seperate into Frontend and Backend
+- [ ] Connect button when both XML and C files are present
+- [ ] Enter button working
+- [ ] Registers printed
+- [ ] Ready for Claypool (Thursday)
+- [ ] Ready for Vincent and Andrew (Monday)
+- [ ] Valid information for testing
+
+- [ ] Task
+
 ## History v1.x
 
 ### Version 1.1
 * Upload C file
 * seperated GUI and Backend
 * Output on GDB from C file
+* Update User Interface
 
 ### Version 1.0
-* Basic User Interface
+* User Interface
 * Title, Open Buttons
 * XML Table, Registers, GDB Output, Breakpoints
-* Open XML insert into table and prints file name *
+* Open XML insert into table and prints file name
