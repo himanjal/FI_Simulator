@@ -2,6 +2,8 @@
 
 > For our Master Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch. to collect information on a low level. This enabled us to then see if glitching would occur and the registers stay the same.
 
+## Run
+> $ python gui.py
 
 ## Authors 
 * Jon Metzger
@@ -18,9 +20,6 @@
 * Import Documents
   * .XML
   * .C
-
-## Run
-> $ python gui.py
 
 ## Tasks
 - [x] Complete GUI Layout
