@@ -47,9 +47,15 @@ $ python gui.py
 
 ## History v1.x
 
+### Version 1.2
+* Disable buttons before step is needed
+* Set registers
+* info R and info B
+* Registers read on GUI
+
 ### Version 1.1
 * Upload C file
-* seperated GUI and Backend
+* Seperated GUI and Backend
 * Output on GDB from C file
 * Update User Interface
 
