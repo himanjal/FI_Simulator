@@ -38,9 +38,10 @@ font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
 # ***** Functions *****
 
 def automateTest():
-	onClick_xmlFile()
-	onClick_cFile()
-	onClick_connectQemu()
+	# onClick_xmlFile()
+	# onClick_cFile()
+	# onClick_connectQemu()
+	return
 
 # Insert print terminal now on GDB Output
 def printOutput(line):
@@ -90,7 +91,7 @@ def onClick_cFile():
     	strF = myfile.read()
     	
     	for line in strF.split('\n'):
-    		top.cprog_table.insert(END, line)
+    		top.c_table.insert(END, line)
 
     	myfile.close()
 
@@ -101,7 +102,6 @@ def clickProgLine(event):
 	w = event.widget
 	index = int(w.curselection()[0])
 	value = w.get(index)
-	top.addBreakpoint.configure(state='active')
 	top.trigFault.configure(state='normal')
 
 	printOutput('You selected line %d: "%s"' % (index, value))
@@ -156,7 +156,7 @@ class mainwindow:
 
         self.title(top)
         self.xml(top)
-        self.cfile(top)
+        self.program(top)
         self.reg(top)
         self.gdb(top)
         self.command(top)
@@ -165,7 +165,7 @@ class mainwindow:
     def title(self, top):
 
         self.title_frame = Frame(top)
-        self.title_frame.place(relx=0.01, rely=0.01, relheight=0.08, relwidth=0.98)
+        self.title_frame.place(relx=0, rely=0, relheight=0.075, relwidth=1.00)
         self.title_frame.configure(relief=GROOVE)
         self.title_frame.configure(borderwidth="2")
         self.title_frame.configure(relief=GROOVE)
@@ -198,50 +198,59 @@ class mainwindow:
         self.connect_qemu.configure(command=onClick_connectQemu)
         self.connect_qemu.configure(state='disabled')
 
-    def cfile(self, top):
+    def program(self, top):
 
-        self.cprog_frame = Frame(top)
-        self.cprog_frame.place(relx=0.01, rely=0.09, relheight=0.9, relwidth=0.49)
-        self.cprog_frame.configure(relief=GROOVE)
-        self.cprog_frame.configure(borderwidth="2")
-        self.cprog_frame.configure(relief=GROOVE)
-        self.cprog_frame.configure(width=450)
+        self.prog_frame = Frame(top)
+        self.prog_frame.place(relx=0, rely=0.075, relheight=0.925, relwidth=0.50)
+        self.prog_frame.configure(relief=GROOVE)
+        self.prog_frame.configure(borderwidth="2")
+        self.prog_frame.configure(relief=GROOVE)
+        self.prog_frame.configure(width=450)
 
-        self.cprog_title = Label(self.cprog_frame)
-        self.cprog_title.place(relx=0.02, rely=0.02, height=23, width=420)
-        self.cprog_title.configure(activebackground="#f9f9f9")
-        self.cprog_title.configure(font=font12)
-        self.cprog_title.configure(anchor=W)
-        self.cprog_title.configure(justify=LEFT)
-        self.cprog_title.configure(text='''Assembly Program''')
-
-        self.addBreakpoint = Button(self.cprog_frame)
-        self.addBreakpoint.place(relx=0.5, rely=0.01, height=30, width=150)
-        self.addBreakpoint.configure(activebackground="#d9d9d9")
-        self.addBreakpoint.configure(text='''Add Breakpoint''')
-        #self.connect_qemu.configure(command=onClick_addBreakpoint)
-        self.addBreakpoint.configure(state='disabled')
-
-        self.trigFault = Button(self.cprog_frame)
+        self.trigFault = Button(self.prog_frame)
         self.trigFault.place(relx=0.75, rely=0.01, height=30, width=150)
         self.trigFault.configure(activebackground="#d9d9d9")
         self.trigFault.configure(text='''Trigger Fault''')
-        #self.connect_qemu.configure(command=onClick_addBreakpoint)
         self.trigFault.configure(state='disabled')
 
-        self.cprog_table = Listbox(self.cprog_frame)
-        self.cprog_table.place(relx=0.02, rely=0.055, relheight=0.935, relwidth=0.96)
-        self.cprog_table.configure(font=font18)
-        self.cprog_table.configure(relief=RIDGE)
-        self.cprog_table.configure(selectbackground="#c4c4c4")
-        self.cprog_table.configure(width=470)
-        self.cprog_table.insert(END,'''Assembly File not yet Imported''')
-        self.cprog_table.bind("<<ListboxSelect>>", clickProgLine)
+        self.asm_title = Label(self.prog_frame)
+        self.asm_title.place(relx=0.02, rely=0.02, height=23, width=420)
+        self.asm_title.configure(activebackground="#f9f9f9")
+        self.asm_title.configure(font=font12)
+        self.asm_title.configure(anchor=W)
+        self.asm_title.configure(justify=LEFT)
+        self.asm_title.configure(text='''Machine Code''')
+
+        self.asm_table = Listbox(self.prog_frame)
+        self.asm_table.place(relx=0.02, rely=.055, relheight=0.36, relwidth=0.96)
+        self.asm_table.configure(font=font18)
+        self.asm_table.configure(relief=RIDGE)
+        self.asm_table.configure(selectbackground="#c4c4c4")
+        self.asm_table.configure(width=470)
+        self.asm_table.insert(END,'''Machine Code not yet Imported''')
+        self.asm_table.bind("<<ListboxSelect>>", clickProgLine)
+
+        self.c_title = Label(self.prog_frame)
+        self.c_title.place(relx=0.02, rely=0.44, height=23, width=420)
+        self.c_title.configure(activebackground="#f9f9f9")
+        self.c_title.configure(font=font12)
+        self.c_title.configure(anchor=W)
+        self.c_title.configure(justify=LEFT)
+        self.c_title.configure(text='''Source Code''')
+
+        self.c_table = Listbox(self.prog_frame)
+        self.c_table.place(relx=0.02, rely=0.465, relheight=0.53, relwidth=0.96)
+        self.c_table.configure(font=font18)
+        self.c_table.configure(relief=RIDGE)
+        self.c_table.configure(selectbackground="#c4c4c4")
+        self.c_table.configure(width=470)
+        self.c_table.insert(END,'''Source Code not yet Imported''')
+        self.c_table.bind("<<ListboxSelect>>", clickProgLine)
 
     def xml(self, top):
 
         self.xml_frame = Frame(top)
-        self.xml_frame.place(relx=0.5, rely=0.09, relheight=0.3, relwidth=0.29)
+        self.xml_frame.place(relx=0.50, rely=0.075, relheight=0.4, relwidth=0.30)
         self.xml_frame.configure(relief=GROOVE)
         self.xml_frame.configure(borderwidth="2")
         self.xml_frame.configure(relief=GROOVE)
@@ -273,7 +282,7 @@ class mainwindow:
     def reg(self, top):
 
         self.reg_frame = Frame(top)
-        self.reg_frame.place(relx=0.79, rely=0.09, relheight=0.3, relwidth=0.2)
+        self.reg_frame.place(relx=0.80, rely=0.075, relheight=0.4, relwidth=0.20)
         self.reg_frame.configure(relief=GROOVE)
         self.reg_frame.configure(borderwidth="2")
         self.reg_frame.configure(relief=GROOVE)
@@ -305,7 +314,7 @@ class mainwindow:
     def gdb(self, top):
 
         self.gdb_frame = Frame(top)
-        self.gdb_frame.place(relx=0.5, rely=0.39, relheight=0.55, relwidth=0.49)
+        self.gdb_frame.place(relx=0.5, rely=0.475, relheight=0.475, relwidth=0.5)
         self.gdb_frame.configure(relief=GROOVE)
         self.gdb_frame.configure(borderwidth="2")
         self.gdb_frame.configure(relief=GROOVE)
@@ -326,13 +335,13 @@ class mainwindow:
         self.gdb_table.configure(width=970)
         self.gdb_table.insert(END, '''Nothing Imported''')
 
-        self.scrollbar = Scrollbar(top)
-        self.scrollbar.pack(side=RIGHT, fill=Y)
+        # self.scrollbar = Scrollbar(self.gdb_frame)
+        # self.scrollbar.pack(side=RIGHT, fill=Y)
 
     def command(self, top):
 
         self.command_frame = Frame(top)
-        self.command_frame.place(relx=0.5, rely=0.94, relheight=0.05, relwidth=0.49)
+        self.command_frame.place(relx=0.5, rely=0.95, relheight=0.05, relwidth=0.50)
         self.command_frame.configure(relief=GROOVE)
         self.command_frame.configure(borderwidth="2")
         self.command_frame.configure(relief=GROOVE)
