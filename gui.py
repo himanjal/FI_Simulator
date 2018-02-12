@@ -11,9 +11,11 @@ import time
 import ttk
 from backend import initModel
 import os
+import inspect
 
 # ***** Variables *****
 entity = None
+top = None
 
 _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
 _fgcolor = '#000000'  # X11 color: 'black'
@@ -35,6 +37,11 @@ font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
 
 # ***** Functions *****
 
+def automateTest():
+	onClick_xmlFile()
+	onClick_cFile()
+	onClick_connectQemu()
+
 # Insert print terminal now on GDB Output
 def printOutput(line):
     output = " > [ " + line + " ]"
@@ -44,14 +51,15 @@ def printOutput(line):
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
     filenameXML = askopenfile()
-
+    basename = os.path.basename(filenameXML.name)
     if filenameXML is None:
         return
     top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
-    printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML.name)))
+    printOutput("Opened < {0} > Successfully ... ".format(basename))
     
     top.xml_table.delete(0,END)	
+    
     i = 1
     for item in entity.getFaults():
         item_list = "{}".format(i).ljust(10) + \
@@ -71,12 +79,32 @@ def onClick_cFile():
     filenameC = askopenfilename()
     if filenameC is None:
         return
-    
+    basename = os.path.basename(filenameC)
     entity.importCFile(filenameC)
-    printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameC)))
+    printOutput("Connected < {0} > Successfully ... ".format(basename))
+    
+    top.cprog_table.delete(0,END)	
+
+    #print inspect.getsource(basename)
+    with open (filenameC, "r") as myfile:
+    	strF = myfile.read()
+    	
+    	for line in strF.split('\n'):
+    		top.cprog_table.insert(END, line)
+
+    	myfile.close()
 
     top.connect_qemu.configure(state='active')
     printOutput("Ready to Connect to QEMU...")
+
+def clickProgLine(event):
+	w = event.widget
+	index = int(w.curselection()[0])
+	value = w.get(index)
+	top.addBreakpoint.configure(state='active')
+	top.trigFault.configure(state='normal')
+
+	printOutput('You selected line %d: "%s"' % (index, value))
 
 # Function when clicking on the "Connect to Qemu" Button
 def onClick_connectQemu():
@@ -107,6 +135,7 @@ def create_mainwindow():
     root = Tk()
     top = mainwindow(root)
     entity = initModel(top)
+    automateTest()
     root.mainloop()
 
 # When Exiting Application
@@ -118,10 +147,10 @@ def destroy_mainwindow():
 # GUI Core
 class mainwindow:
 
-    def __init__(self, top=None):
+    def __init__(self, top):
 
         top.geometry("1500x1000+335+110")
-        top.title("mainwindow")
+        top.title("Fault Injection Simulator")
         top.configure(background="#ffffff")
         top.configure(highlightcolor="black")
 
@@ -150,20 +179,20 @@ class mainwindow:
         self.title_label.configure(text='''Fault Injection Simulator''')
 
         self.open_xml_file = Button(self.title_frame)
-        self.open_xml_file.place(relx=0.47, rely=0.29, height=30, width=150)
+        self.open_xml_file.place(relx=0.55, rely=0.29, height=30, width=150)
         self.open_xml_file.configure(activebackground="#d9d9d9")
         self.open_xml_file.configure(text='''1) Open XML File''')
         self.open_xml_file.configure(command=onClick_xmlFile)
 
         self.open_c_file = Button(self.title_frame)
-        self.open_c_file.place(relx=0.64, rely=0.29, height=30, width=150)
+        self.open_c_file.place(relx=0.7, rely=0.29, height=30, width=150)
         self.open_c_file.configure(activebackground="#d9d9d9")
         self.open_c_file.configure(text='''2) Open C File''')
         self.open_c_file.configure(command=onClick_cFile)
         self.open_c_file.configure(state='disabled')
 
         self.connect_qemu = Button(self.title_frame)
-        self.connect_qemu.place(relx=0.81, rely=0.29, height=30, width=150)
+        self.connect_qemu.place(relx=0.85, rely=0.29, height=30, width=200)
         self.connect_qemu.configure(activebackground="#d9d9d9")
         self.connect_qemu.configure(text='''3) Connect To GDB Server''')
         self.connect_qemu.configure(command=onClick_connectQemu)
@@ -186,6 +215,20 @@ class mainwindow:
         self.cprog_title.configure(justify=LEFT)
         self.cprog_title.configure(text='''Assembly Program''')
 
+        self.addBreakpoint = Button(self.cprog_frame)
+        self.addBreakpoint.place(relx=0.5, rely=0.01, height=30, width=150)
+        self.addBreakpoint.configure(activebackground="#d9d9d9")
+        self.addBreakpoint.configure(text='''Add Breakpoint''')
+        #self.connect_qemu.configure(command=onClick_addBreakpoint)
+        self.addBreakpoint.configure(state='disabled')
+
+        self.trigFault = Button(self.cprog_frame)
+        self.trigFault.place(relx=0.75, rely=0.01, height=30, width=150)
+        self.trigFault.configure(activebackground="#d9d9d9")
+        self.trigFault.configure(text='''Trigger Fault''')
+        #self.connect_qemu.configure(command=onClick_addBreakpoint)
+        self.trigFault.configure(state='disabled')
+
         self.cprog_table = Listbox(self.cprog_frame)
         self.cprog_table.place(relx=0.02, rely=0.055, relheight=0.935, relwidth=0.96)
         self.cprog_table.configure(font=font18)
@@ -193,6 +236,7 @@ class mainwindow:
         self.cprog_table.configure(selectbackground="#c4c4c4")
         self.cprog_table.configure(width=470)
         self.cprog_table.insert(END,'''Assembly File not yet Imported''')
+        self.cprog_table.bind("<<ListboxSelect>>", clickProgLine)
 
     def xml(self, top):
 
@@ -282,6 +326,9 @@ class mainwindow:
         self.gdb_table.configure(width=970)
         self.gdb_table.insert(END, '''Nothing Imported''')
 
+        self.scrollbar = Scrollbar(top)
+        self.scrollbar.pack(side=RIGHT, fill=Y)
+
     def command(self, top):
 
         self.command_frame = Frame(top)
@@ -314,6 +361,5 @@ class mainwindow:
 
 if __name__ == '__main__':
     create_mainwindow()
-
 
 # ***** EOF *****
