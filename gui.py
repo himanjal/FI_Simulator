@@ -12,7 +12,6 @@ import ttk
 from backend import initModel
 import os
 
-
 # ***** Variables *****
 entity = None
 
@@ -81,13 +80,23 @@ def onClick_cFile():
 
 # Function when clicking on the "Connect to Qemu" Button
 def onClick_connectQemu():
-    entity.connect()
+	top.command_enter.configure(state='active')
+	top.command_entry.configure(state='normal')
+	entity.connect()
 	#printOutput("Connected to Qemu Sucessfully ...")
+
+def clearBox(event):
+	event.widget.delete(0,END)
+
+# Function when clicking on the "Enter" Key for the Command Line
+def enterKey(event):
+	entity.sendCommand(event.widget.get())
+	clearBox(event)
 
 # Function when clicking on the "Enter" Button for the Command Line
 def onClick_enter():
-    entity.sendCommand(top.command_entry.get())
-    #ity.readGDB()
+	entity.sendCommand(top.command_entry.get())
+	clearBox(top)
 
 # ***** GUI *****
 
@@ -96,7 +105,7 @@ def create_mainwindow():
     '''Starting point when module is the main routine.'''
     global val, w, root, top, entity
     root = Tk()
-    top = mainwindow (root)
+    top = mainwindow(root)
     entity = initModel(top)
     root.mainloop()
 
@@ -111,15 +120,16 @@ class mainwindow:
 
     def __init__(self, top=None):
 
-        top.geometry("1000x1000+335+110")
+        top.geometry("1500x1000+335+110")
         top.title("mainwindow")
         top.configure(background="#ffffff")
         top.configure(highlightcolor="black")
 
         self.title(top)
         self.xml(top)
-        self.gdb(top)
+        self.cfile(top)
         self.reg(top)
+        self.gdb(top)
         self.command(top)
 
 
@@ -155,18 +165,43 @@ class mainwindow:
         self.connect_qemu = Button(self.title_frame)
         self.connect_qemu.place(relx=0.81, rely=0.29, height=30, width=150)
         self.connect_qemu.configure(activebackground="#d9d9d9")
-        self.connect_qemu.configure(text='''3) Connect To Qemu''')
+        self.connect_qemu.configure(text='''3) Connect To GDB Server''')
         self.connect_qemu.configure(command=onClick_connectQemu)
         self.connect_qemu.configure(state='disabled')
+
+    def cfile(self, top):
+
+        self.cprog_frame = Frame(top)
+        self.cprog_frame.place(relx=0.01, rely=0.09, relheight=0.9, relwidth=0.49)
+        self.cprog_frame.configure(relief=GROOVE)
+        self.cprog_frame.configure(borderwidth="2")
+        self.cprog_frame.configure(relief=GROOVE)
+        self.cprog_frame.configure(width=450)
+
+        self.cprog_title = Label(self.cprog_frame)
+        self.cprog_title.place(relx=0.02, rely=0.02, height=23, width=420)
+        self.cprog_title.configure(activebackground="#f9f9f9")
+        self.cprog_title.configure(font=font12)
+        self.cprog_title.configure(anchor=W)
+        self.cprog_title.configure(justify=LEFT)
+        self.cprog_title.configure(text='''Assembly Program''')
+
+        self.cprog_table = Listbox(self.cprog_frame)
+        self.cprog_table.place(relx=0.02, rely=0.055, relheight=0.935, relwidth=0.96)
+        self.cprog_table.configure(font=font18)
+        self.cprog_table.configure(relief=RIDGE)
+        self.cprog_table.configure(selectbackground="#c4c4c4")
+        self.cprog_table.configure(width=470)
+        self.cprog_table.insert(END,'''Assembly File not yet Imported''')
 
     def xml(self, top):
 
         self.xml_frame = Frame(top)
-        self.xml_frame.place(relx=0.01, rely=0.09, relheight=0.3, relwidth=0.49)
+        self.xml_frame.place(relx=0.5, rely=0.09, relheight=0.3, relwidth=0.29)
         self.xml_frame.configure(relief=GROOVE)
         self.xml_frame.configure(borderwidth="2")
         self.xml_frame.configure(relief=GROOVE)
-        self.xml_frame.configure(width=485)
+        self.xml_frame.configure(width=450)
 
         self.xml_title = Label(self.xml_frame)
         self.xml_title.place(relx=0.02, rely=0.03, height=23, width=87)
@@ -176,7 +211,7 @@ class mainwindow:
         self.xml_title.configure(text='''XML Table''')
 
         self.xml_attr = Label(self.xml_frame)
-        self.xml_attr.place(relx=0.02, rely=0.1, height=18, width=439)
+        self.xml_attr.place(relx=0.02, rely=0.1, height=18, width=420)
         self.xml_attr.configure(activebackground="#f9f9f9")
         self.xml_attr.configure(anchor=W)
         self.xml_attr.configure(font=font11)
@@ -194,14 +229,14 @@ class mainwindow:
     def reg(self, top):
 
         self.reg_frame = Frame(top)
-        self.reg_frame.place(relx=0.5, rely=0.09, relheight=0.3, relwidth=0.49)
+        self.reg_frame.place(relx=0.79, rely=0.09, relheight=0.3, relwidth=0.2)
         self.reg_frame.configure(relief=GROOVE)
         self.reg_frame.configure(borderwidth="2")
         self.reg_frame.configure(relief=GROOVE)
-        self.reg_frame.configure(width=485)
+        self.reg_frame.configure(width=450)
 
         self.reg_title = Label(self.reg_frame)
-        self.reg_title.place(relx=0.02, rely=0.03, height=23, width=78)
+        self.reg_title.place(relx=0.02, rely=0.03, height=23, width=90)
         self.reg_title.configure(activebackground="#f9f9f9")
         self.reg_title.configure(anchor=W)
         self.reg_title.configure(font=font12)
@@ -209,7 +244,7 @@ class mainwindow:
         self.reg_title.configure(text='''Registers''')
 
         self.reg_attr = Label(self.reg_frame)
-        self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=414)
+        self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=200)
         self.reg_attr.configure(activebackground="#f9f9f9")
         self.reg_attr.configure(anchor=W)
         self.reg_attr.configure(font=font11)
@@ -221,16 +256,15 @@ class mainwindow:
         self.reg_table.configure(relief=RIDGE)
         self.reg_table.configure(selectbackground="#c4c4c4")
         self.reg_table.configure(width=480)
-        #self.reg_table.insert(END,'''Info R not yet implemented''')
+        self.reg_table.insert(END,'''Registers not yet Implemented''')
 
     def gdb(self, top):
 
         self.gdb_frame = Frame(top)
-        self.gdb_frame.place(relx=0.01, rely=0.39, relheight=0.55, relwidth=0.98)
+        self.gdb_frame.place(relx=0.5, rely=0.39, relheight=0.55, relwidth=0.49)
         self.gdb_frame.configure(relief=GROOVE)
         self.gdb_frame.configure(borderwidth="2")
         self.gdb_frame.configure(relief=GROOVE)
-        self.gdb_frame.configure(width=990)
 
         self.gdb_title = Label(self.gdb_frame)
         self.gdb_title.place(relx=0.01, rely=0.015, height=18, width=226)
@@ -251,33 +285,35 @@ class mainwindow:
     def command(self, top):
 
         self.command_frame = Frame(top)
-        self.command_frame.place(relx=0.01, rely=0.94, relheight=0.05, relwidth=0.98)
+        self.command_frame.place(relx=0.5, rely=0.94, relheight=0.05, relwidth=0.49)
         self.command_frame.configure(relief=GROOVE)
         self.command_frame.configure(borderwidth="2")
         self.command_frame.configure(relief=GROOVE)
         self.command_frame.configure(width=990)
 
         self.command_title = Label(self.command_frame)
-        self.command_title.place(relx=0.01, rely=0.27, height=23, width=46)
+        self.command_title.place(relx=0.01, rely=0.26, height=23, width=46)
         self.command_title.configure(activebackground="#f9f9f9")
         self.command_title.configure(font=font9)
         self.command_title.configure(text='''(gdb)''')
 
         self.command_entry = Entry(self.command_frame)
-        self.command_entry.place(relx=0.07, rely=0.16,height=30, relwidth=0.84)
+        self.command_entry.place(relx=0.08, rely=0.16,height=30, relwidth=0.8)
         self.command_entry.configure(background="white")
         self.command_entry.configure(font="TkFixedFont")
+        self.command_entry.configure(state='disabled')
         self.command_entry.configure(selectbackground="#c4c4c4")
-
-        #self.command_entry.bind('<Return>', onClick_enter)
+        self.command_entry.bind('<Return>', enterKey)
 
         self.command_enter = Button(self.command_frame)
-        self.command_enter.place(relx=0.93, rely=0.22, height=26, width=59)
+        self.command_enter.place(relx=0.90, rely=0.22, height=26, width=59)
         self.command_enter.configure(activebackground="#d9d9d9")
         self.command_enter.configure(text='''Enter''')
+        self.command_enter.configure(state='disabled')
         self.command_enter.configure(command=onClick_enter)
 
 if __name__ == '__main__':
     create_mainwindow()
+
 
 # ***** EOF *****

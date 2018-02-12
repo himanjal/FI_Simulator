@@ -114,6 +114,7 @@ class Model:
     def readReg(self):
 
     	time.sleep(0.1)
+        self.topLevel.reg_table.delete(0,END)
     	self.tempf.seek(self.pointer)
     	line = self.tempf.read()
     	self.pointer = self.tempf.tell()
