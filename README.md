@@ -77,10 +77,10 @@ $ python gui.py
 - [x] Import C file onto "GDB Output"
 - [x] Seperate into Frontend and Backend
 - [x] Connect button when both XML and C files are present with connect button
-- [ ] Enter button working
-- [ ] Registers printed
-- [ ] Ready for Claypool (Thursday)
-- [ ] Ready for Vincent and Andrew (Monday)
+- [X] Enter button working
+- [X] Registers printed
+- [X] Code clickable
+- [ ] View Machine Code when clicking Source code line
 - [ ] Valid information for testing
 
 - [ ] Task
