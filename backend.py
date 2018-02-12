@@ -71,6 +71,38 @@ class Model:
         self.addBreakpoints()
 
 
+    def showAssemCode(self, lineNo):
+
+        #print lineNo
+        self.topLevel.asm_table.delete(0, END)
+        self.pluginProcess.stdin.write("B " + str(lineNo) + "\n")
+        time.sleep(0.1)
+        self.tempf.seek(self.pointer)
+        lines = self.tempf.read().split()
+        bpNum = lines[1]
+        bpAddr = lines[3][:-1]
+        self.pointer = self.tempf.tell()
+
+
+        self.pluginProcess.stdin.write("disassemble " + bpAddr + "\n")
+        time.sleep(0.1)
+        self.tempf.seek(self.pointer)
+        machineCode = self.tempf.read()
+        self.pointer = self.tempf.tell()
+
+        for line in machineCode.split("\n"):
+            self.topLevel.asm_table.insert(END, line)
+        
+
+        self.sendCommand("del " + str(bpNum))
+
+
+
+
+
+
+
+
 
 
     def addBreakpoints(self):
@@ -97,8 +129,8 @@ class Model:
             
             self.pluginProcess.stdin.write("del " + str(bpNum) + "\n")
 
-            # if bpNum == len(faults):
-            #     self.pluginProcess.stdin.write("B add\n")
+            if bpNum == len(self.faults):
+                self.pluginProcess.stdin.write("B add\n")
             
             self.pluginProcess.stdin.write("info R\n")
 
@@ -129,7 +161,7 @@ class Model:
     def sendCommand(self, line):
     	self.pluginProcess.stdin.write(line + "\n")
 
-    	if line == "info R":
+    	if line == "info R" or line == "info r":
     		self.readReg()
     	else:
     		self.readGDB()

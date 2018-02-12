@@ -1,0 +1,16 @@
+<xml>
+	
+	<action>
+		<bp breakpointAddress="test.c:4"/>
+		<lp loopCounter="6"/>
+		<rg registerList="[r3,r0,r1,r2]"/>
+		<mk mask="8"/>
+	</action>
+	<action>
+		<bp breakpointAddress="test.c:9"/>
+		<lp loopCounter="1"/>
+		<rg registerList="[r4,r3,r2,r1]"/>
+		<mk mask="18"/>
+	</action>
+
+</xml>

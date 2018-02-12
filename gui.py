@@ -52,9 +52,10 @@ def printOutput(line):
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
     filenameXML = askopenfile()
-    basename = os.path.basename(filenameXML.name)
     if filenameXML is None:
         return
+
+    basename = os.path.basename(filenameXML.name)
     top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
     printOutput("Opened < {0} > Successfully ... ".format(basename))
@@ -84,7 +85,7 @@ def onClick_cFile():
     entity.importCFile(filenameC)
     printOutput("Connected < {0} > Successfully ... ".format(basename))
     
-    top.cprog_table.delete(0,END)	
+    top.c_table.delete(0,END)	
 
     #print inspect.getsource(basename)
     with open (filenameC, "r") as myfile:
@@ -99,12 +100,13 @@ def onClick_cFile():
     printOutput("Ready to Connect to QEMU...")
 
 def clickProgLine(event):
-	w = event.widget
-	index = int(w.curselection()[0])
-	value = w.get(index)
-	top.trigFault.configure(state='normal')
+    w = event.widget
+    index = int(w.curselection()[0])
+    value = w.get(index)
+    top.trigFault.configure(state='normal')
+    printOutput('You selected line %d: "%s"' % (index, value))
+    entity.showAssemCode(index)
 
-	printOutput('You selected line %d: "%s"' % (index, value))
 
 # Function when clicking on the "Connect to Qemu" Button
 def onClick_connectQemu():
