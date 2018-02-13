@@ -74,7 +74,7 @@ class Model:
     def showAssemCode(self, lineNo):
 
         #print lineNo
-        self.topLevel.asm_table.delete(0, END)
+        self.topLevel.machine_table.delete(0, END)
         self.pluginProcess.stdin.write("B " + str(lineNo) + "\n")
         time.sleep(0.1)
         self.tempf.seek(self.pointer)
@@ -91,7 +91,7 @@ class Model:
         self.pointer = self.tempf.tell()
 
         for line in machineCode.split("\n"):
-            self.topLevel.asm_table.insert(END, line)
+            self.topLevel.machine_table.insert(END, line)
         
 
         self.sendCommand("del " + str(bpNum))

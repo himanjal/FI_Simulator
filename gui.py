@@ -85,14 +85,14 @@ def onClick_cFile():
     entity.importCFile(filenameC)
     printOutput("Connected < {0} > Successfully ... ".format(basename))
     
-    top.c_table.delete(0,END)	
+    top.source_table.delete(0,END)	
 
     #print inspect.getsource(basename)
     with open (filenameC, "r") as myfile:
     	strF = myfile.read()
     	
     	for line in strF.split('\n'):
-    		top.c_table.insert(END, line)
+    		top.source_table.insert(END, line)
 
     	myfile.close()
 
@@ -117,8 +117,8 @@ def onClick_connectQemu():
 	top.command_enter.configure(state='active')
 	top.command_entry.configure(state='normal')
 	top.reg_refresh.configure(state='active')
-	top.c_table.bind("<<ListboxSelect>>", clickProgLine)
-	top.asm_table.bind("<<ListboxSelect>>", clickProgLine2)
+	top.source_table.bind("<<ListboxSelect>>", clickProgLine)
+	top.machine_table.bind("<<ListboxSelect>>", clickProgLine2)
 	entity.connect()
 	#printOutput("Connected to Qemu Sucessfully ...")
 
