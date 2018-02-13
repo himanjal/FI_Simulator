@@ -49,6 +49,9 @@ def printOutput(line):
     print output
     top.gdb_table.insert(END, output)
 
+def refreshRegisters():
+    entity.sendCommand("info R")
+
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
     filenameXML = askopenfile()
@@ -318,6 +321,7 @@ class mainwindow:
         self.reg_refresh.configure(activebackground="#d9d9d9")
         self.reg_refresh.configure(text='''Refresh''')
         self.reg_refresh.configure(state='disabled')
+        self.reg_refresh.configure(command=refreshRegisters)
 
         self.reg_attr = Label(self.reg_frame)
         self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=200)
