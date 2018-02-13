@@ -214,7 +214,7 @@ class mainwindow:
     def machine(self, top):
 
         self.machine_frame = Frame(top)
-        self.machine_frame.place(relx=0, rely=0.075, relheight=0.4, relwidth=0.50)
+        self.machine_frame.place(relx=0, rely=0.075, relheight=0.4, relwidth=0.45)
         self.machine_frame.configure(relief=GROOVE)
         self.machine_frame.configure(borderwidth="2")
         self.machine_frame.configure(relief=GROOVE)
@@ -229,7 +229,7 @@ class mainwindow:
         self.machine_title.configure(text='''Machine Code''')
 
         self.trigFault = Button(self.machine_frame)
-        self.trigFault.place(relx=0.85, rely=0.01, height=30, width=100)
+        self.trigFault.place(relx=0.8, rely=0.01, height=30, width=100)
         self.trigFault.configure(activebackground="#d9d9d9")
         self.trigFault.configure(text='''Trigger Fault''')
         self.trigFault.configure(state='disabled')
@@ -245,7 +245,7 @@ class mainwindow:
     def source(self, top):
 
         self.source_frame = Frame(top)
-        self.source_frame.place(relx=0, rely=0.475, relheight=0.525, relwidth=0.50)
+        self.source_frame.place(relx=0, rely=0.475, relheight=0.525, relwidth=0.45)
         self.source_frame.configure(relief=GROOVE)
         self.source_frame.configure(borderwidth="2")
         self.source_frame.configure(relief=GROOVE)
@@ -270,7 +270,7 @@ class mainwindow:
     def xml(self, top):
 
         self.xml_frame = Frame(top)
-        self.xml_frame.place(relx=0.50, rely=0.075, relheight=0.4, relwidth=0.30)
+        self.xml_frame.place(relx=0.45, rely=0.075, relheight=0.4, relwidth=0.32)
         self.xml_frame.configure(relief=GROOVE)
         self.xml_frame.configure(borderwidth="2")
         self.xml_frame.configure(relief=GROOVE)
@@ -302,7 +302,7 @@ class mainwindow:
     def reg(self, top):
 
         self.reg_frame = Frame(top)
-        self.reg_frame.place(relx=0.80, rely=0.075, relheight=0.4, relwidth=0.20)
+        self.reg_frame.place(relx=0.77, rely=0.075, relheight=0.4, relwidth=0.23)
         self.reg_frame.configure(relief=GROOVE)
         self.reg_frame.configure(borderwidth="2")
         self.reg_frame.configure(relief=GROOVE)
@@ -341,7 +341,7 @@ class mainwindow:
     def gdb(self, top):
 
         self.gdb_frame = Frame(top)
-        self.gdb_frame.place(relx=0.5, rely=0.475, relheight=0.475, relwidth=0.5)
+        self.gdb_frame.place(relx=0.45, rely=0.475, relheight=0.475, relwidth=0.55)
         self.gdb_frame.configure(relief=GROOVE)
         self.gdb_frame.configure(borderwidth="2")
         self.gdb_frame.configure(relief=GROOVE)
@@ -365,7 +365,7 @@ class mainwindow:
     def command(self, top):
 
         self.command_frame = Frame(top)
-        self.command_frame.place(relx=0.5, rely=0.95, relheight=0.05, relwidth=0.50)
+        self.command_frame.place(relx=0.45, rely=0.95, relheight=0.05, relwidth=0.55)
         self.command_frame.configure(relief=GROOVE)
         self.command_frame.configure(borderwidth="2")
         self.command_frame.configure(relief=GROOVE)
