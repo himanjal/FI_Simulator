@@ -107,6 +107,8 @@ def clickProgLine(event):
     printOutput('You selected line %d: "%s"' % (index, value))
     entity.showAssemCode(index)
 
+def clickProgLine2(event):
+    print "please work on this later"
 
 # Function when clicking on the "Connect to Qemu" Button
 def onClick_connectQemu():
@@ -230,7 +232,7 @@ class mainwindow:
         self.asm_table.configure(selectbackground="#c4c4c4")
         self.asm_table.configure(width=470)
         self.asm_table.insert(END,'''Machine Code not yet Imported''')
-        self.asm_table.bind("<<ListboxSelect>>", clickProgLine)
+        self.asm_table.bind("<<ListboxSelect>>", clickProgLine2)
 
         self.c_title = Label(self.prog_frame)
         self.c_title.place(relx=0.02, rely=0.44, height=23, width=420)

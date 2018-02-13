@@ -85,7 +85,7 @@ class Model:
 
 
         self.pluginProcess.stdin.write("disassemble " + bpAddr + "\n")
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.tempf.seek(self.pointer)
         machineCode = self.tempf.read()
         self.pointer = self.tempf.tell()
