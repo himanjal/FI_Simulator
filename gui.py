@@ -107,12 +107,9 @@ def clickProgLine(event):
     index = int(w.curselection()[0])
     value = w.get(index)
     top.trigFault.configure(state='normal')
-    printOutput('You selected line %d: "%s"' % (index, value))
+    printOutput('You selected line %d: "%s"' % (index +1, value))
     entity.showAssemCode(index)
-    top.trigFault.configure(state='disabled')
-
-def clickProgLine2(event):
-    print "please work on this later"
+    top.trigFault.configure(state='active')
 
 # Function when clicking on the "Connect to Qemu" Button
 # Put Events in here to first activate
@@ -121,7 +118,7 @@ def onClick_connectQemu():
 	top.command_entry.configure(state='normal')
 	top.reg_refresh.configure(state='active')
 	top.source_table.bind("<<ListboxSelect>>", clickProgLine)
-	top.machine_table.bind("<<ListboxSelect>>", clickProgLine2)
+	#top.machine_table.bind("<<ListboxSelect>>", clickProgLine2)
 	entity.connect()
 	#printOutput("Connected to Qemu Sucessfully ...")
 
@@ -140,6 +137,10 @@ def onClick_enter():
 
 # ***** GUI *****
 
+def triggered():
+    top.trigFault.configure(state='disabled')
+    entity.triggerFault()
+
 # When Creating Application
 def create_mainwindow():
     '''Starting point when module is the main routine.'''
@@ -155,6 +156,9 @@ def destroy_mainwindow():
     global w
     w.destroy()
     w = None
+
+def mouseWheelEvent(event):
+    top.scrollBar.yview('scroll',event.delta, 'units')
 
 # GUI Core
 class mainwindow:
@@ -233,14 +237,24 @@ class mainwindow:
         self.trigFault.configure(activebackground="#d9d9d9")
         self.trigFault.configure(text='''Trigger Fault''')
         self.trigFault.configure(state='disabled')
+        self.trigFault.configure(command= triggered)
 
         self.machine_table = Listbox(self.machine_frame)
         self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
         self.machine_table.configure(font=font18)
         self.machine_table.configure(relief=RIDGE)
-        self.machine_table.configure(selectbackground="#c4c4c4")
+        #self.machine_table.configure(selectbackground="#c4c4c4")
+        self.machine_table.bindtags((self.machine_table,self, "all"))
         self.machine_table.configure(width=470)
+        self.machine_table.configure(selectbackground=None)
         self.machine_table.insert(END,'''Machine Code not yet Imported''')
+        self.scrollBar = Scrollbar(self.machine_table, orient="vertical")
+        self.scrollBar.config(command=self.machine_table.yview)
+        self.scrollBar.pack(side="right", fill="y")
+
+        self.machine_table.config(yscrollcommand=self.scrollBar.set)
+        self.machine_table.bind("<MouseWheel>", mouseWheelEvent)
+
         
     def source(self, top):
 

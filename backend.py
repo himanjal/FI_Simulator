@@ -25,7 +25,9 @@ class Model:
     topLevel = None
     pluginProcess = None
     tempf = None
+    machineCode =[]
     pointer = 0
+    machineIndex = 0
 
     def __init__(self, top):
         self.topLevel = top
@@ -75,32 +77,57 @@ class Model:
 
         #print lineNo
         self.topLevel.machine_table.delete(0, END)
-        self.pluginProcess.stdin.write("B " + str(lineNo) + "\n")
+        self.pluginProcess.stdin.write("B " + str(lineNo + 1) + "\n")
         time.sleep(0.1)
         self.tempf.seek(self.pointer)
         lines = self.tempf.read().split()
-        bpNum = lines[1]
-        bpAddr = lines[3][:-1]
+        print lines
+        if "note" in lines[0].lower():
+            bpNum = lines[9]
+            bpAddr = lines[11][:-1]
+        else:
+            bpNum = lines[1]
+            bpAddr = lines[3][:-1]
+
         self.pointer = self.tempf.tell()
+        self.updateMachineCode(bpAddr)
+        #self.sendCommand("info B")
+        #self.sendCommand("del " + str(bpNum))
 
 
+
+    def updateMachineCode(self, bpAddr):
+
+        print "Address: " + bpAddr
         self.pluginProcess.stdin.write("disassemble " + bpAddr + "\n")
         time.sleep(0.2)
         self.tempf.seek(self.pointer)
         machineCode = self.tempf.read()
         self.pointer = self.tempf.tell()
+        #print machineCode
+        self.machineCode = []
 
+        i = 0
         for line in machineCode.split("\n"):
+            self.machineCode.append(line)
             self.topLevel.machine_table.insert(END, line)
-        
+            if bpAddr[2:] in line.split()[0]:
+                self.topLevel.machine_table.itemconfig(i,{'bg':'light grey'})
+                self.machineIndex = i
+            else:
+                self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
+            i = i + 1
 
-        self.sendCommand("del " + str(bpNum))
 
 
+    def triggerFault(self):
 
-
-
-
+        index = self.machineIndex
+        for i in range(index, len(self.machineCode) - 1):
+            self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
+            self.topLevel.machine_table.itemconfig(i+1,{'bg':'light grey'})
+            self.topLevel.machine_table.update()
+            time.sleep(0.4)
 
 
 
@@ -159,6 +186,7 @@ class Model:
 
 
     def sendCommand(self, line):
+        self.topLevel.gdb_table.insert(END,line)
     	self.pluginProcess.stdin.write(line + "\n")
 
     	if line == "info R" or line == "info r":
