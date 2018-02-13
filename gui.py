@@ -106,14 +106,19 @@ def clickProgLine(event):
     top.trigFault.configure(state='normal')
     printOutput('You selected line %d: "%s"' % (index, value))
     entity.showAssemCode(index)
+    top.trigFault.configure(state='disabled')
 
 def clickProgLine2(event):
     print "please work on this later"
 
 # Function when clicking on the "Connect to Qemu" Button
+# Put Events in here to first activate
 def onClick_connectQemu():
 	top.command_enter.configure(state='active')
 	top.command_entry.configure(state='normal')
+	top.reg_refresh.configure(state='active')
+	top.c_table.bind("<<ListboxSelect>>", clickProgLine)
+	top.asm_table.bind("<<ListboxSelect>>", clickProgLine2)
 	entity.connect()
 	#printOutput("Connected to Qemu Sucessfully ...")
 
@@ -160,7 +165,8 @@ class mainwindow:
 
         self.title(top)
         self.xml(top)
-        self.program(top)
+        self.machine(top)
+        self.source(top)
         self.reg(top)
         self.gdb(top)
         self.command(top)
@@ -202,54 +208,61 @@ class mainwindow:
         self.connect_qemu.configure(command=onClick_connectQemu)
         self.connect_qemu.configure(state='disabled')
 
-    def program(self, top):
+    def machine(self, top):
 
-        self.prog_frame = Frame(top)
-        self.prog_frame.place(relx=0, rely=0.075, relheight=0.925, relwidth=0.50)
-        self.prog_frame.configure(relief=GROOVE)
-        self.prog_frame.configure(borderwidth="2")
-        self.prog_frame.configure(relief=GROOVE)
-        self.prog_frame.configure(width=450)
+        self.machine_frame = Frame(top)
+        self.machine_frame.place(relx=0, rely=0.075, relheight=0.4, relwidth=0.50)
+        self.machine_frame.configure(relief=GROOVE)
+        self.machine_frame.configure(borderwidth="2")
+        self.machine_frame.configure(relief=GROOVE)
+        self.machine_frame.configure(width=450)
 
-        self.trigFault = Button(self.prog_frame)
-        self.trigFault.place(relx=0.75, rely=0.01, height=30, width=150)
+        self.machine_title = Label(self.machine_frame)
+        self.machine_title.place(relx=0.02, rely=0.02, height=23, width=420)
+        self.machine_title.configure(activebackground="#f9f9f9")
+        self.machine_title.configure(font=font12)
+        self.machine_title.configure(anchor=W)
+        self.machine_title.configure(justify=LEFT)
+        self.machine_title.configure(text='''Machine Code''')
+
+        self.trigFault = Button(self.machine_frame)
+        self.trigFault.place(relx=0.85, rely=0.01, height=30, width=100)
         self.trigFault.configure(activebackground="#d9d9d9")
         self.trigFault.configure(text='''Trigger Fault''')
         self.trigFault.configure(state='disabled')
 
-        self.asm_title = Label(self.prog_frame)
-        self.asm_title.place(relx=0.02, rely=0.02, height=23, width=420)
-        self.asm_title.configure(activebackground="#f9f9f9")
-        self.asm_title.configure(font=font12)
-        self.asm_title.configure(anchor=W)
-        self.asm_title.configure(justify=LEFT)
-        self.asm_title.configure(text='''Machine Code''')
+        self.machine_table = Listbox(self.machine_frame)
+        self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
+        self.machine_table.configure(font=font18)
+        self.machine_table.configure(relief=RIDGE)
+        self.machine_table.configure(selectbackground="#c4c4c4")
+        self.machine_table.configure(width=470)
+        self.machine_table.insert(END,'''Machine Code not yet Imported''')
+        
+    def source(self, top):
 
-        self.asm_table = Listbox(self.prog_frame)
-        self.asm_table.place(relx=0.02, rely=.055, relheight=0.36, relwidth=0.96)
-        self.asm_table.configure(font=font18)
-        self.asm_table.configure(relief=RIDGE)
-        self.asm_table.configure(selectbackground="#c4c4c4")
-        self.asm_table.configure(width=470)
-        self.asm_table.insert(END,'''Machine Code not yet Imported''')
-        self.asm_table.bind("<<ListboxSelect>>", clickProgLine2)
+        self.source_frame = Frame(top)
+        self.source_frame.place(relx=0, rely=0.475, relheight=0.525, relwidth=0.50)
+        self.source_frame.configure(relief=GROOVE)
+        self.source_frame.configure(borderwidth="2")
+        self.source_frame.configure(relief=GROOVE)
+        self.source_frame.configure(width=450)
 
-        self.c_title = Label(self.prog_frame)
-        self.c_title.place(relx=0.02, rely=0.44, height=23, width=420)
-        self.c_title.configure(activebackground="#f9f9f9")
-        self.c_title.configure(font=font12)
-        self.c_title.configure(anchor=W)
-        self.c_title.configure(justify=LEFT)
-        self.c_title.configure(text='''Source Code''')
+        self.source_title = Label(self.source_frame)
+        self.source_title.place(relx=0.02, rely=0.02, height=23, width=420)
+        self.source_title.configure(activebackground="#f9f9f9")
+        self.source_title.configure(font=font12)
+        self.source_title.configure(anchor=W)
+        self.source_title.configure(justify=LEFT)
+        self.source_title.configure(text='''Source Code''')
 
-        self.c_table = Listbox(self.prog_frame)
-        self.c_table.place(relx=0.02, rely=0.465, relheight=0.53, relwidth=0.96)
-        self.c_table.configure(font=font18)
-        self.c_table.configure(relief=RIDGE)
-        self.c_table.configure(selectbackground="#c4c4c4")
-        self.c_table.configure(width=470)
-        self.c_table.insert(END,'''Source Code not yet Imported''')
-        self.c_table.bind("<<ListboxSelect>>", clickProgLine)
+        self.source_table = Listbox(self.source_frame)
+        self.source_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
+        self.source_table.configure(font=font18)
+        self.source_table.configure(relief=RIDGE)
+        self.source_table.configure(selectbackground="#c4c4c4")
+        self.source_table.configure(width=470)
+        self.source_table.insert(END,'''Source Code not yet Imported''')
 
     def xml(self, top):
 
@@ -300,6 +313,12 @@ class mainwindow:
         self.reg_title.configure(justify=LEFT)
         self.reg_title.configure(text='''Registers''')
 
+        self.reg_refresh = Button(self.reg_frame)
+        self.reg_refresh.place(relx=0.71, rely=0.025, height=30, width=75)
+        self.reg_refresh.configure(activebackground="#d9d9d9")
+        self.reg_refresh.configure(text='''Refresh''')
+        self.reg_refresh.configure(state='disabled')
+
         self.reg_attr = Label(self.reg_frame)
         self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=200)
         self.reg_attr.configure(activebackground="#f9f9f9")
@@ -338,9 +357,6 @@ class mainwindow:
         self.gdb_table.configure(selectbackground="#c4c4c4")
         self.gdb_table.configure(width=970)
         self.gdb_table.insert(END, '''Nothing Imported''')
-
-        # self.scrollbar = Scrollbar(self.gdb_frame)
-        # self.scrollbar.pack(side=RIGHT, fill=Y)
 
     def command(self, top):
 
