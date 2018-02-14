@@ -42,7 +42,7 @@ def onClick_xmlFile():
         top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected. Please select an XML file."))
         return
     entity.importXML(filenameXML)
-    printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
+    printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
     top.xml_table.delete(0,END)	
     i = 1
     for item in entity.getFaults():
@@ -145,24 +145,12 @@ lgrey = '#d9d9d9'
 black = '#000000'
 white = '#ffffff'
 
-
 font_app_title = "-family {Bitstream Vera Serif} -size 20 -weight bold -slant roman -underline 0 -overstrike 0"
 font_app_button = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
 font_table_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 1 -overstrike 0"
 font_table_list = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
 font_table_attr = "-family {DejaVu Sans} -size 10 -weight normal -slant italic -underline 0 -overstrike 0"
-
-
-font15 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
-    "roman -underline 0 -overstrike 0"
-font17 = "TkDefaultFont"
-font18 = "TkDefaultFont"
-font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
-    "roman -underline 0 -overstrike 0"
-
-
-
-
+font_command_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 0 -overstrike 0"
 
 class mainwindow:
 
@@ -273,95 +261,65 @@ class mainwindow:
     def reg(self, top):
 
         self.reg_frame = Frame(top)
+        self.reg_frame.configure(relief=GROOVE, borderwidth="1")
         self.reg_frame.place(relx=0.77, rely=0.075, relheight=0.4, relwidth=0.23)
-        self.reg_frame.configure(relief=GROOVE)
-        self.reg_frame.configure(borderwidth="2")
-        self.reg_frame.configure(relief=GROOVE)
-        self.reg_frame.configure(width=450)
 
         self.reg_title = Label(self.reg_frame)
-        self.reg_title.place(relx=0.02, rely=0.03, height=23, width=90)
-        self.reg_title.configure(activebackground="#f9f9f9")
-        self.reg_title.configure(anchor=W)
-        self.reg_title.configure(font=font_table_title)
-        self.reg_title.configure(justify=LEFT)
-        self.reg_title.configure(text='''Registers''')
+        self.reg_title.configure(text="Register Table", font=font_table_title, anchor=NW)
+        self.reg_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.5)
 
         self.reg_attr = Label(self.reg_frame)
-        self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=200)
-        self.reg_attr.configure(activebackground="#f9f9f9")
-        self.reg_attr.configure(anchor=W)
-        self.reg_attr.configure(font=font_table_attr)
-        self.reg_attr.configure(text='''Name     Address     Value''')
+        self.reg_attr.configure(text="Name     Address      Value", font=font_table_attr, anchor=NW)
+        self.reg_attr.place(relx=0.02, rely=0.075, relheight=0.1, relwidth=0.96)        
 
         self.reg_table = Listbox(self.reg_frame)
-        self.reg_table.place(relx=0.02, rely=0.17, relheight=0.8, relwidth=0.96)
-        self.reg_table.configure(font=font17)
-        self.reg_table.configure(relief=RIDGE)
-        self.reg_table.configure(selectbackground="#c4c4c4")
-        self.reg_table.configure(width=480)
-        self.reg_table.insert(END,'''Registers not yet Implemented''')
+        self.reg_table.configure(relief=RIDGE, font=font_table_list)
+        self.reg_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
+        self.reg_table.insert(END,"Connect to Server to view Registers")
+        self.reg_table_scrollBar = Scrollbar(self.reg_table, orient="vertical")
+        self.reg_table_scrollBar.config(command=self.reg_table.yview)
+        self.reg_table_scrollBar.pack(side="right", fill="y")
+        self.reg_table.config(yscrollcommand=self.reg_table_scrollBar.set)
+        self.reg_table.bind("<MouseWheel>", mouseWheelEvent)
 
     def gdb(self, top):
 
         self.gdb_frame = Frame(top)
+        self.gdb_frame.configure(relief=GROOVE, borderwidth="1")
         self.gdb_frame.place(relx=0.45, rely=0.475, relheight=0.475, relwidth=0.55)
-        self.gdb_frame.configure(relief=GROOVE)
-        self.gdb_frame.configure(borderwidth="2")
-        self.gdb_frame.configure(relief=GROOVE)
 
         self.gdb_title = Label(self.gdb_frame)
-        self.gdb_title.place(relx=0.01, rely=0.015, height=18, width=226)
-        self.gdb_title.configure(activebackground="#f9f9f9")
-        self.gdb_title.configure(anchor=W)
-        self.gdb_title.configure(font=font_table_title)
-        self.gdb_title.configure(justify=LEFT)
-        self.gdb_title.configure(text='''GNU Debugger''')
+        self.gdb_title.configure(text="GNU Debugger", font=font_table_title, anchor=NW)
+        self.gdb_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
 
         self.gdb_table = Listbox(self.gdb_frame)
-        self.gdb_table.place(relx=0.01, rely=0.06, relheight=0.92, relwidth=0.98)
-        self.gdb_table.configure(background="white")
-        self.gdb_table.configure(font="TkFixedFont")
-        self.gdb_table.configure(selectbackground="#c4c4c4")
-        self.gdb_table.configure(width=970)
-        self.gdb_table.insert(END, '''Nothing Imported''')
-
-        self.gdb_scrollBar = Scrollbar(self.gdb_table, orient="vertical")
-        self.gdb_scrollBar.config(command=self.gdb_table.yview)
-        self.gdb_scrollBar.pack(side="right", fill="y")
-
-        self.gdb_table.config(yscrollcommand=self.gdb_scrollBar.set)
+        self.gdb_table.configure(relief=RIDGE, font=font_table_list)
+        self.gdb_table.place(relx=0.015, rely=0.08, relheight=0.9, relwidth=0.98)
+        self.gdb_table.insert(END,"Connect to Server to Debug")
+        self.gdb_table_scrollBar = Scrollbar(self.gdb_table, orient="vertical")
+        self.gdb_table_scrollBar.config(command=self.gdb_table.yview)
+        self.gdb_table_scrollBar.pack(side="right", fill="y")
+        self.gdb_table.config(yscrollcommand=self.gdb_table_scrollBar.set)
         self.gdb_table.bind("<MouseWheel>", mouseWheelEvent)
 
     def command(self, top):
 
         self.command_frame = Frame(top)
+        self.command_frame.configure(relief=GROOVE, borderwidth="1")
         self.command_frame.place(relx=0.45, rely=0.95, relheight=0.05, relwidth=0.55)
-        self.command_frame.configure(relief=GROOVE)
-        self.command_frame.configure(borderwidth="2")
-        self.command_frame.configure(relief=GROOVE)
-        self.command_frame.configure(width=990)
 
         self.command_title = Label(self.command_frame)
-        self.command_title.place(relx=0.01, rely=0.26, height=23, width=46)
-        self.command_title.configure(activebackground="#f9f9f9")
-        self.command_title.configure(font=font9)
-        self.command_title.configure(text='''(gdb)''')
+        self.command_title.configure(text="(gdb)", font=font_command_title, anchor=NW)
+        self.command_title.place(relx=0.02, rely=0.25, relheight=0.5, relwidth=0.1)
 
         self.command_entry = Entry(self.command_frame)
-        self.command_entry.place(relx=0.08, rely=0.16,height=30, relwidth=0.8)
-        self.command_entry.configure(background="white")
-        self.command_entry.configure(font="TkFixedFont")
-        self.command_entry.configure(state='disabled')
-        self.command_entry.configure(selectbackground="#c4c4c4")
+        self.command_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
         self.command_entry.bind('<Return>', enterKey)
+        self.command_entry.place(relx=0.1, rely=0.25, relheight=0.5, relwidth=0.8)
 
         self.command_enter = Button(self.command_frame)
-        self.command_enter.place(relx=0.90, rely=0.22, height=26, width=59)
-        self.command_enter.configure(activebackground="#d9d9d9")
-        self.command_enter.configure(text='''Enter''')
-        self.command_enter.configure(state='disabled')
-        self.command_enter.configure(command=onClick_enter)
+        self.command_enter.configure(text="Enter", font=font_app_button, state="disabled", command=onClick_enter)
+        self.command_enter.place(relx=0.92, rely=0.25, relheight=0.5, width=60)
 
     def menu(self, top):
     	self.menuBar = Menu(top)
