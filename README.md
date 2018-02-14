@@ -47,6 +47,12 @@ $ python gui.py
 
 ## History v1.x
 
+### Version 1.4
+* Highlight source code and mirror on machine code
+* Trigger Fault goes through lines (TODO)
+* Refresh button for registers
+* Redesign
+
 ### Version 1.3
 * View Machine Code
 * Print selected Program lines
