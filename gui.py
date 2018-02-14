@@ -17,24 +17,6 @@ import inspect
 entity = None
 top = None
 
-_bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-_fgcolor = '#000000'  # X11 color: 'black'
-_compcolor = '#d9d9d9' # X11 color: 'gray85'
-_ana1color = '#d9d9d9' # X11 color: 'gray85' 
-_ana2color = '#d9d9d9' # X11 color: 'gray85' 
-font10 = "-family {Bitstream Vera Serif} -size 20 -weight bold"  \
-    " -slant roman -underline 0 -overstrike 0"
-font11 = "-family {DejaVu Sans} -size 10 -weight normal -slant"  \
-    " italic -underline 0 -overstrike 0"
-font12 = "-family {DejaVu Sans} -size 12 -weight normal -slant"  \
-    " roman -underline 1 -overstrike 0"
-font15 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
-    "roman -underline 0 -overstrike 0"
-font17 = "TkDefaultFont"
-font18 = "TkDefaultFont"
-font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
-    "roman -underline 0 -overstrike 0"
-
 # ***** Functions *****
 
 def automateTest():
@@ -57,9 +39,8 @@ def onClick_xmlFile():
     filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
     if ".xml" not in filenameXML:
         top.gdb_table.delete(0,END)	
-        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected"))
+        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected. Please select an XML file."))
         return
-    top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
     printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
     top.xml_table.delete(0,END)	
@@ -78,20 +59,19 @@ def onClick_cFile():
     filenameC = askopenfilename(initialdir = "./documents", title="Select Source file")
     if not filenameC:
     	top.gdb_table.delete(0,END)	
-        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected"))
+        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected. Please select a Source file."))
         return
     basename = os.path.basename(filenameC)
     entity.importCFile(filenameC)
     top.gdb_table.delete(0,END)	
     printOutput("Connected < {0} > Successfully ... ".format(basename))
-    top.source_table.delete(0,END)	
-    #print inspect.getsource(basename)
+    top.source_table.delete(0,END)
     with open (filenameC, "r") as myfile:
     	strF = myfile.read() 	
     	for line in strF.split('\n'):
     		top.source_table.insert(END, line)
     	myfile.close()
-    #top.connect_qemu.configure(state='active')
+    onClick_connectQemu()
 
 
 # Function when clicking on the "Connect to Qemu" Button
@@ -99,7 +79,7 @@ def onClick_cFile():
 def onClick_connectQemu():
 	top.command_enter.configure(state='active')
 	top.command_entry.configure(state='normal')
-	top.reg_refresh.configure(state='active')
+	top.ref_reg.configure(state='active')
 	top.source_table.bind("<<ListboxSelect>>", clickProgLine)
 	#top.machine_table.bind("<<ListboxSelect>>", clickProgLine2)
 	entity.connect()
@@ -110,10 +90,10 @@ def clickProgLine(event):
     w = event.widget
     index = int(w.curselection()[0])
     value = w.get(index)
-    top.trigFault.configure(state='normal')
+    top.trig_fault.configure(state='normal')
     printOutput('You selected line %d: "%s"' % (index +1, value))
     entity.showAssemCode(index)
-    top.trigFault.configure(state='active')
+    top.trig_fault.configure(state='active')
 
 def clearBox(event):
 	event.widget.delete(0,END)
@@ -129,9 +109,14 @@ def onClick_enter():
 	clearBox(top)
 
 
-def triggered():
-    top.trigFault.configure(state='disabled')
+def triggerFault():
+    top.trig_fault.configure(state='disabled')
+    #top.stop_fault.configure(state='active')
     entity.triggerFault()
+
+# def stopFault():
+# 	top.stop_fault.configure(state='disabled')
+# 	print 'STOPPING FAULT IF NEEDED'
 
 # ***** GUI *****
 
@@ -155,14 +140,38 @@ def mouseWheelEvent(event):
     top.scrollBar.yview('scroll',event.delta, 'units')
 
 # GUI Core
+
+lgrey = '#d9d9d9'
+black = '#000000'
+white = '#ffffff'
+
+
+font_app_title = "-family {Bitstream Vera Serif} -size 20 -weight bold -slant roman -underline 0 -overstrike 0"
+font_app_button = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
+font_table_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 1 -overstrike 0"
+font_table_list = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
+font_table_attr = "-family {DejaVu Sans} -size 10 -weight normal -slant italic -underline 0 -overstrike 0"
+
+
+font15 = "-family {DejaVu Sans} -size 0 -weight normal -slant "  \
+    "roman -underline 0 -overstrike 0"
+font17 = "TkDefaultFont"
+font18 = "TkDefaultFont"
+font9 = "-family {DejaVu Sans} -size 12 -weight normal -slant "  \
+    "roman -underline 0 -overstrike 0"
+
+
+
+
+
 class mainwindow:
 
     def __init__(self, top):
 
         top.geometry("1500x1000+335+110")
         top.title("Fault Injection Simulator")
-        top.configure(background="#ffffff")
-        top.configure(highlightcolor="black")
+        top.configure(background=white)
+        top.configure(highlightcolor=black)
 
         self.title(top)
         self.menu(top)
@@ -177,136 +186,89 @@ class mainwindow:
     def title(self, top):
 
         self.title_frame = Frame(top)
+        self.title_frame.configure(relief=GROOVE, borderwidth="1")
         self.title_frame.place(relx=0, rely=0, relheight=0.075, relwidth=1.00)
-        self.title_frame.configure(relief=GROOVE)
-        self.title_frame.configure(borderwidth="2")
-        self.title_frame.configure(relief=GROOVE)
-        self.title_frame.configure(width=980)
-
-        self.title_label = Label(self.title_frame)
-        self.title_label.place(relx=0.01, rely=0.16, height=50, width=425)
-        self.title_label.configure(activebackground="#f9f9f9")
-        self.title_label.configure(anchor=W)
-        self.title_label.configure(font=font10)
-        self.title_label.configure(text='''Fault Injection Simulator''')
-
-        # self.open_xml_file = Button(self.title_frame)
-        # self.open_xml_file.place(relx=0.55, rely=0.29, height=30, width=200)
-        # self.open_xml_file.configure(activebackground="#d9d9d9")
-        # self.open_xml_file.configure(text='''(OPTIONAL) Open XML File''')
-        # self.open_xml_file.configure(command=onClick_xmlFile)
-
-        # self.open_c_file = Button(self.title_frame)
-        # self.open_c_file.place(relx=0.72, rely=0.29, height=30, width=150)
-        # self.open_c_file.configure(activebackground="#d9d9d9")
-        # self.open_c_file.configure(text='''1) Open Source File''')
-        # self.open_c_file.configure(command=onClick_cFile)
-
-        # self.connect_qemu = Button(self.title_frame)
-        # self.connect_qemu.place(relx=0.85, rely=0.29, height=30, width=200)
-        # self.connect_qemu.configure(activebackground="#d9d9d9")
-        # self.connect_qemu.configure(text='''2) Connect To GDB Server''')
-        # self.connect_qemu.configure(command=onClick_connectQemu)
         
+        self.title_label = Label(self.title_frame)
+        self.title_label.configure(text="Fault Injection Simulator", font=font_app_title, anchor="center")
+        self.title_label.place(relx=0, rely=0, relheight=1.00, relwidth=1.00)
+
+        self.trig_fault = Button(self.title_frame)
+        self.trig_fault.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
+        self.trig_fault.place(relx=0.01, rely=0.3, height=30, width=150)
+
+        # self.stop_fault = Button(self.title_frame)
+        # self.stop_fault.configure(text="Stop Fault", font=font_button, state='disabled')
+        # self.stop_fault.place(relx=0.13, rely=0.3, height=30, width=150)
+
+        self.ref_reg = Button(self.title_frame)
+        self.ref_reg.configure(text="Refresh Registers", font=font_app_button, state='disabled', command=refreshRegisters)
+        self.ref_reg.place(relx=0.89, rely=0.3, height=30, width=150)
 
     def machine(self, top):
 
         self.machine_frame = Frame(top)
+        self.machine_frame.configure(relief=GROOVE, borderwidth="1")
         self.machine_frame.place(relx=0, rely=0.075, relheight=0.4, relwidth=0.45)
-        self.machine_frame.configure(relief=GROOVE)
-        self.machine_frame.configure(borderwidth="2")
-        self.machine_frame.configure(relief=GROOVE)
-        self.machine_frame.configure(width=450)
 
         self.machine_title = Label(self.machine_frame)
-        self.machine_title.place(relx=0.02, rely=0.02, height=23, width=420)
-        self.machine_title.configure(activebackground="#f9f9f9")
-        self.machine_title.configure(font=font12)
-        self.machine_title.configure(anchor=W)
-        self.machine_title.configure(justify=LEFT)
-        self.machine_title.configure(text='''Machine Code''')
-
-        self.trigFault = Button(self.machine_frame)
-        self.trigFault.place(relx=0.8, rely=0.01, height=30, width=100)
-        self.trigFault.configure(activebackground="#d9d9d9")
-        self.trigFault.configure(text='''Trigger Fault''')
-        self.trigFault.configure(state='disabled')
-        self.trigFault.configure(command= triggered)
+        self.machine_title.configure(text="Machine Code", font=font_table_title, anchor=NW)
+        self.machine_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
 
         self.machine_table = Listbox(self.machine_frame)
-        self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
-        self.machine_table.configure(font=font18)
-        self.machine_table.configure(relief=RIDGE)
-        #self.machine_table.configure(selectbackground="#c4c4c4")
-        self.machine_table.bindtags((self.machine_table,self, "<MouseWheel>"))
-        self.machine_table.configure(width=470)
-        self.machine_table.configure(selectbackground=None)
-        self.machine_table.insert(END,'''Machine Code not yet Imported''')
-        
-        self.scrollBar = Scrollbar(self.machine_table, orient="vertical")
-        self.scrollBar.config(command=self.machine_table.yview)
-        self.scrollBar.pack(side="right", fill="y")
-
-        self.machine_table.config(yscrollcommand=self.scrollBar.set)
+        self.machine_table_scrollBar = Scrollbar(self.machine_table, orient="vertical")
+        self.machine_table_scrollBar.config(command=self.machine_table.yview)
+        self.machine_table_scrollBar.pack(side="right", fill="y")
         self.machine_table.bind("<MouseWheel>", mouseWheelEvent)
+        self.machine_table.configure(relief=RIDGE, font=font_table_list, yscrollcommand=self.machine_table_scrollBar.set)
+        self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
+        self.machine_table.bindtags((self.machine_table, self, "<MouseWheel>"))
+        self.machine_table.insert(END,"Click on a Source Code line to view Machine Code")
 
-        
     def source(self, top):
 
         self.source_frame = Frame(top)
+        self.source_frame.configure(relief=GROOVE, borderwidth="1")
         self.source_frame.place(relx=0, rely=0.475, relheight=0.525, relwidth=0.45)
-        self.source_frame.configure(relief=GROOVE)
-        self.source_frame.configure(borderwidth="2")
-        self.source_frame.configure(relief=GROOVE)
-        self.source_frame.configure(width=450)
 
         self.source_title = Label(self.source_frame)
-        self.source_title.place(relx=0.02, rely=0.02, height=23, width=420)
-        self.source_title.configure(activebackground="#f9f9f9")
-        self.source_title.configure(font=font12)
-        self.source_title.configure(anchor=W)
-        self.source_title.configure(justify=LEFT)
-        self.source_title.configure(text='''Source Code''')
-
+        self.source_title.configure(text="Source Code", font=font_table_title, anchor=NW)
+        self.source_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
+        
         self.source_table = Listbox(self.source_frame)
-        self.source_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
-        self.source_table.configure(font=font18)
-        self.source_table.configure(relief=RIDGE)
-        self.source_table.configure(selectbackground="#c4c4c4")
-        self.source_table.configure(width=470)
-        self.source_table.insert(END,'''Source Code not yet Imported''')
+        self.source_table.configure(relief=RIDGE, font=font_table_list)
+        self.source_table.place(relx=0.02, rely=0.075, relheight=0.9, relwidth=0.96)
+        self.source_table.insert(END,"Select { Open Files > Open Source File } to view")
+        self.source_table_scrollBar = Scrollbar(self.source_table, orient="vertical")
+        self.source_table_scrollBar.config(command=self.source_table.yview)
+        self.source_table_scrollBar.pack(side="right", fill="y")
+        self.source_table.config(yscrollcommand=self.source_table_scrollBar.set)
+        self.source_table.bind("<MouseWheel>", mouseWheelEvent)
+
 
     def xml(self, top):
 
         self.xml_frame = Frame(top)
+        self.xml_frame.configure(relief=GROOVE, borderwidth="1")
         self.xml_frame.place(relx=0.45, rely=0.075, relheight=0.4, relwidth=0.32)
-        self.xml_frame.configure(relief=GROOVE)
-        self.xml_frame.configure(borderwidth="2")
-        self.xml_frame.configure(relief=GROOVE)
-        self.xml_frame.configure(width=450)
 
         self.xml_title = Label(self.xml_frame)
-        self.xml_title.place(relx=0.02, rely=0.03, height=23, width=87)
-        self.xml_title.configure(activebackground="#f9f9f9")
-        self.xml_title.configure(font=font12)
-        self.xml_title.configure(justify=LEFT)
-        self.xml_title.configure(text='''XML Table''')
+        self.xml_title.configure(text="XML Table", font=font_table_title, anchor=NW)
+        self.xml_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
 
         self.xml_attr = Label(self.xml_frame)
-        self.xml_attr.place(relx=0.02, rely=0.1, height=18, width=420)
-        self.xml_attr.configure(activebackground="#f9f9f9")
-        self.xml_attr.configure(anchor=W)
-        self.xml_attr.configure(font=font11)
-        self.xml_attr.configure(justify=LEFT)
-        self.xml_attr.configure(text='''Num   Breakpoint      Loop   Register                                 Mask''')
+        self.xml_attr.configure(text="Num   Breakpoint      Loop   Register                                 Mask", font=font_table_attr, anchor=NW)
+        self.xml_attr.place(relx=0.02, rely=0.075, relheight=0.1, relwidth=0.96)
 
         self.xml_table = Listbox(self.xml_frame)
-        self.xml_table.place(relx=0.02, rely=0.17, relheight=0.8, relwidth=0.96)
-        self.xml_table.configure(font=font18)
-        self.xml_table.configure(relief=RIDGE)
-        self.xml_table.configure(selectbackground="#c4c4c4")
-        self.xml_table.configure(width=470)
-        self.xml_table.insert(END,'''XML not yet Imported''')
+        self.xml_table.configure(relief=RIDGE, font=font_table_list)
+        self.xml_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
+        self.xml_table.insert(END,"Select { Open Files > Open XML File } to view")
+        self.xml_table_scrollBar = Scrollbar(self.xml_table, orient="vertical")
+        self.xml_table_scrollBar.config(command=self.xml_table.yview)
+        self.xml_table_scrollBar.pack(side="right", fill="y")
+        self.xml_table.config(yscrollcommand=self.xml_table_scrollBar.set)
+        self.xml_table.bind("<MouseWheel>", mouseWheelEvent)
 
     def reg(self, top):
 
@@ -321,22 +283,15 @@ class mainwindow:
         self.reg_title.place(relx=0.02, rely=0.03, height=23, width=90)
         self.reg_title.configure(activebackground="#f9f9f9")
         self.reg_title.configure(anchor=W)
-        self.reg_title.configure(font=font12)
+        self.reg_title.configure(font=font_table_title)
         self.reg_title.configure(justify=LEFT)
         self.reg_title.configure(text='''Registers''')
-
-        self.reg_refresh = Button(self.reg_frame)
-        self.reg_refresh.place(relx=0.71, rely=0.025, height=30, width=75)
-        self.reg_refresh.configure(activebackground="#d9d9d9")
-        self.reg_refresh.configure(text='''Refresh''')
-        self.reg_refresh.configure(state='disabled')
-        self.reg_refresh.configure(command=refreshRegisters)
 
         self.reg_attr = Label(self.reg_frame)
         self.reg_attr.place(relx=0.02, rely=0.1, height=18, width=200)
         self.reg_attr.configure(activebackground="#f9f9f9")
         self.reg_attr.configure(anchor=W)
-        self.reg_attr.configure(font=font11)
+        self.reg_attr.configure(font=font_table_attr)
         self.reg_attr.configure(text='''Name     Address     Value''')
 
         self.reg_table = Listbox(self.reg_frame)
@@ -359,7 +314,7 @@ class mainwindow:
         self.gdb_title.place(relx=0.01, rely=0.015, height=18, width=226)
         self.gdb_title.configure(activebackground="#f9f9f9")
         self.gdb_title.configure(anchor=W)
-        self.gdb_title.configure(font=font12)
+        self.gdb_title.configure(font=font_table_title)
         self.gdb_title.configure(justify=LEFT)
         self.gdb_title.configure(text='''GNU Debugger''')
 
