@@ -54,17 +54,13 @@ def refreshRegisters():
 
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
-    filenameXML = askopenfile()
+    filenameXML = askopenfilename(initialdir = ".",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
     if filenameXML is None:
         return
-
-    basename = os.path.basename(filenameXML.name)
     top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
-    printOutput("Opened < {0} > Successfully ... ".format(basename))
-    
+    printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
     top.xml_table.delete(0,END)	
-    
     i = 1
     for item in entity.getFaults():
         item_list = "{}".format(i).ljust(10) + \
@@ -72,12 +68,8 @@ def onClick_xmlFile():
         "{}".format(item.lp).ljust(10) + \
         "{}".format(item.regList).ljust(40) + \
         "{}".format(item.mask).ljust(10)
-
         top.xml_table.insert(END, item_list)
         i = i + 1
-    
-    top.open_c_file.configure(state='active')
-    printOutput("Ready to Open C File...")
 
 # Function when clicking on the "Open C File" Button
 def onClick_cFile():
@@ -86,30 +78,18 @@ def onClick_cFile():
         return
     basename = os.path.basename(filenameC)
     entity.importCFile(filenameC)
+    top.gdb_table.delete(0,END)	
     printOutput("Connected < {0} > Successfully ... ".format(basename))
-    
     top.source_table.delete(0,END)	
-
     #print inspect.getsource(basename)
     with open (filenameC, "r") as myfile:
-    	strF = myfile.read()
-    	
+    	strF = myfile.read() 	
     	for line in strF.split('\n'):
     		top.source_table.insert(END, line)
-
     	myfile.close()
-
     top.connect_qemu.configure(state='active')
     printOutput("Ready to Connect to QEMU...")
 
-def clickProgLine(event):
-    w = event.widget
-    index = int(w.curselection()[0])
-    value = w.get(index)
-    top.trigFault.configure(state='normal')
-    printOutput('You selected line %d: "%s"' % (index +1, value))
-    entity.showAssemCode(index)
-    top.trigFault.configure(state='active')
 
 # Function when clicking on the "Connect to Qemu" Button
 # Put Events in here to first activate
@@ -121,6 +101,16 @@ def onClick_connectQemu():
 	#top.machine_table.bind("<<ListboxSelect>>", clickProgLine2)
 	entity.connect()
 	#printOutput("Connected to Qemu Sucessfully ...")
+
+
+def clickProgLine(event):
+    w = event.widget
+    index = int(w.curselection()[0])
+    value = w.get(index)
+    top.trigFault.configure(state='normal')
+    printOutput('You selected line %d: "%s"' % (index +1, value))
+    entity.showAssemCode(index)
+    top.trigFault.configure(state='active')
 
 def clearBox(event):
 	event.widget.delete(0,END)
@@ -196,22 +186,21 @@ class mainwindow:
         self.title_label.configure(text='''Fault Injection Simulator''')
 
         self.open_xml_file = Button(self.title_frame)
-        self.open_xml_file.place(relx=0.55, rely=0.29, height=30, width=150)
+        self.open_xml_file.place(relx=0.55, rely=0.29, height=30, width=200)
         self.open_xml_file.configure(activebackground="#d9d9d9")
-        self.open_xml_file.configure(text='''1) Open XML File''')
+        self.open_xml_file.configure(text='''(OPTIONAL) Open XML File''')
         self.open_xml_file.configure(command=onClick_xmlFile)
 
         self.open_c_file = Button(self.title_frame)
-        self.open_c_file.place(relx=0.7, rely=0.29, height=30, width=150)
+        self.open_c_file.place(relx=0.72, rely=0.29, height=30, width=150)
         self.open_c_file.configure(activebackground="#d9d9d9")
-        self.open_c_file.configure(text='''2) Open C File''')
+        self.open_c_file.configure(text='''1) Open Source File''')
         self.open_c_file.configure(command=onClick_cFile)
-        self.open_c_file.configure(state='disabled')
 
         self.connect_qemu = Button(self.title_frame)
         self.connect_qemu.place(relx=0.85, rely=0.29, height=30, width=200)
         self.connect_qemu.configure(activebackground="#d9d9d9")
-        self.connect_qemu.configure(text='''3) Connect To GDB Server''')
+        self.connect_qemu.configure(text='''2) Connect To GDB Server''')
         self.connect_qemu.configure(command=onClick_connectQemu)
         self.connect_qemu.configure(state='disabled')
 
@@ -244,10 +233,11 @@ class mainwindow:
         self.machine_table.configure(font=font18)
         self.machine_table.configure(relief=RIDGE)
         #self.machine_table.configure(selectbackground="#c4c4c4")
-        self.machine_table.bindtags((self.machine_table,self, "all"))
+        self.machine_table.bindtags((self.machine_table,self, "<MouseWheel>"))
         self.machine_table.configure(width=470)
         self.machine_table.configure(selectbackground=None)
         self.machine_table.insert(END,'''Machine Code not yet Imported''')
+        
         self.scrollBar = Scrollbar(self.machine_table, orient="vertical")
         self.scrollBar.config(command=self.machine_table.yview)
         self.scrollBar.pack(side="right", fill="y")
@@ -375,6 +365,13 @@ class mainwindow:
         self.gdb_table.configure(selectbackground="#c4c4c4")
         self.gdb_table.configure(width=970)
         self.gdb_table.insert(END, '''Nothing Imported''')
+
+        self.gdb_scrollBar = Scrollbar(self.gdb_table, orient="vertical")
+        self.gdb_scrollBar.config(command=self.gdb_table.yview)
+        self.gdb_scrollBar.pack(side="right", fill="y")
+
+        self.gdb_table.config(yscrollcommand=self.gdb_scrollBar.set)
+        self.gdb_table.bind("<MouseWheel>", mouseWheelEvent)
 
     def command(self, top):
 
