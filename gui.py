@@ -54,10 +54,11 @@ def refreshRegisters():
 
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
-    filenameXML = askopenfilename(initialdir = ".",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
-    if not filenameXML:
+    filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
+    if ".xml" not in filenameXML:
+        top.gdb_table.delete(0,END)	
+        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected"))
         return
-   	print filenameXML
     top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
     printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
@@ -74,8 +75,10 @@ def onClick_xmlFile():
 
 # Function when clicking on the "Open C File" Button
 def onClick_cFile():
-    filenameC = askopenfilename()
-    if filenameC is None:
+    filenameC = askopenfilename(initialdir = "./documents", title="Select Source file")
+    if not filenameC:
+    	top.gdb_table.delete(0,END)	
+        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected"))
         return
     basename = os.path.basename(filenameC)
     entity.importCFile(filenameC)
@@ -88,8 +91,7 @@ def onClick_cFile():
     	for line in strF.split('\n'):
     		top.source_table.insert(END, line)
     	myfile.close()
-    top.connect_qemu.configure(state='active')
-    printOutput("Ready to Connect to QEMU...")
+    #top.connect_qemu.configure(state='active')
 
 
 # Function when clicking on the "Connect to Qemu" Button
@@ -126,11 +128,12 @@ def onClick_enter():
 	entity.sendCommand(top.command_entry.get())
 	clearBox(top)
 
-# ***** GUI *****
 
 def triggered():
     top.trigFault.configure(state='disabled')
     entity.triggerFault()
+
+# ***** GUI *****
 
 # When Creating Application
 def create_mainwindow():
@@ -162,6 +165,7 @@ class mainwindow:
         top.configure(highlightcolor="black")
 
         self.title(top)
+        self.menu(top)
         self.xml(top)
         self.machine(top)
         self.source(top)
@@ -186,24 +190,24 @@ class mainwindow:
         self.title_label.configure(font=font10)
         self.title_label.configure(text='''Fault Injection Simulator''')
 
-        self.open_xml_file = Button(self.title_frame)
-        self.open_xml_file.place(relx=0.55, rely=0.29, height=30, width=200)
-        self.open_xml_file.configure(activebackground="#d9d9d9")
-        self.open_xml_file.configure(text='''(OPTIONAL) Open XML File''')
-        self.open_xml_file.configure(command=onClick_xmlFile)
+        # self.open_xml_file = Button(self.title_frame)
+        # self.open_xml_file.place(relx=0.55, rely=0.29, height=30, width=200)
+        # self.open_xml_file.configure(activebackground="#d9d9d9")
+        # self.open_xml_file.configure(text='''(OPTIONAL) Open XML File''')
+        # self.open_xml_file.configure(command=onClick_xmlFile)
 
-        self.open_c_file = Button(self.title_frame)
-        self.open_c_file.place(relx=0.72, rely=0.29, height=30, width=150)
-        self.open_c_file.configure(activebackground="#d9d9d9")
-        self.open_c_file.configure(text='''1) Open Source File''')
-        self.open_c_file.configure(command=onClick_cFile)
+        # self.open_c_file = Button(self.title_frame)
+        # self.open_c_file.place(relx=0.72, rely=0.29, height=30, width=150)
+        # self.open_c_file.configure(activebackground="#d9d9d9")
+        # self.open_c_file.configure(text='''1) Open Source File''')
+        # self.open_c_file.configure(command=onClick_cFile)
 
-        self.connect_qemu = Button(self.title_frame)
-        self.connect_qemu.place(relx=0.85, rely=0.29, height=30, width=200)
-        self.connect_qemu.configure(activebackground="#d9d9d9")
-        self.connect_qemu.configure(text='''2) Connect To GDB Server''')
-        self.connect_qemu.configure(command=onClick_connectQemu)
-        self.connect_qemu.configure(state='disabled')
+        # self.connect_qemu = Button(self.title_frame)
+        # self.connect_qemu.place(relx=0.85, rely=0.29, height=30, width=200)
+        # self.connect_qemu.configure(activebackground="#d9d9d9")
+        # self.connect_qemu.configure(text='''2) Connect To GDB Server''')
+        # self.connect_qemu.configure(command=onClick_connectQemu)
+        
 
     def machine(self, top):
 
@@ -403,6 +407,16 @@ class mainwindow:
         self.command_enter.configure(text='''Enter''')
         self.command_enter.configure(state='disabled')
         self.command_enter.configure(command=onClick_enter)
+
+    def menu(self, top):
+    	self.menuBar = Menu(top)
+    	filemenu = Menu(self.menuBar)
+    	filemenu.add_command(label="Open XML File", command=onClick_xmlFile)
+    	filemenu.add_command(label="Open Source File", command=onClick_cFile)
+    	self.menuBar.add_cascade(label="Open Files",menu=filemenu)
+    	self.menuBar.add_command(label="Connect to Server",command=onClick_connectQemu)
+    	self.menuBar.add_command(label="Exit Application",command=top.quit)
+    	top.config(menu=self.menuBar)
 
 if __name__ == '__main__':
     create_mainwindow()
