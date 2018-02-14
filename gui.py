@@ -55,8 +55,9 @@ def refreshRegisters():
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
     filenameXML = askopenfilename(initialdir = ".",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
-    if filenameXML is None:
+    if not filenameXML:
         return
+   	print filenameXML
     top.gdb_table.delete(0,END)	
     entity.importXML(filenameXML)
     printOutput("Opened < {0} > Successfully ... ".format(os.path.basename(filenameXML)))

@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 import time
 import untangle
+import re
 
 
 from Tkinter import *
@@ -127,7 +128,14 @@ class Model:
             self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
             self.topLevel.machine_table.itemconfig(i+1,{'bg':'light grey'})
             self.topLevel.machine_table.update()
-            time.sleep(0.4)
+            line = self.machineCode[i]
+            print line
+            reg = re.search("r\d{1}",line)
+            if not reg:
+                print "no reg"
+                continue
+            print reg.group()
+            time.sleep(1)
 
 
 
