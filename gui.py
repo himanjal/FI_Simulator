@@ -17,6 +17,22 @@ import inspect
 entity = None
 top = None
 
+
+lgrey = '#d9d9d9'
+black = '#000000'
+white = '#ffffff'
+green = '#98FB98'
+red = '#ff0000'
+pink ='#ffa797'
+
+font_app_title = "-family {Bitstream Vera Serif} -size 20 -weight bold -slant roman -underline 0 -overstrike 0"
+font_app_button = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
+font_table_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 1 -overstrike 0"
+font_table_list = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
+font_table_attr = "-family {DejaVu Sans} -size 10 -weight normal -slant italic -underline 0 -overstrike 0"
+font_command_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 0 -overstrike 0"
+
+
 # ***** Functions *****
 
 def automateTest():
@@ -53,6 +69,8 @@ def onClick_xmlFile():
         "{}".format(item.mask).ljust(10)
         top.xml_table.insert(END, item_list)
         i = i + 1
+    top.xml_addBreak.configure(state='active')
+
 
 # Function when clicking on the "Open C File" Button
 def onClick_cFile():
@@ -67,36 +85,48 @@ def onClick_cFile():
     printOutput("Connected < {0} > Successfully ... ".format(basename))
     top.source_table.delete(0,END)
     with open (filenameC, "r") as myfile:
-    	strF = myfile.read() 	
+    	strF = myfile.read()
+        index = 0
     	for line in strF.split('\n'):
-    		top.source_table.insert(END, line)
-    	myfile.close()
+            index = index + 1
+            top.source_table.insert(END, "{0:15}{1}".format(str(index), line))
+        myfile.close()
 	top.command_enter.configure(state='normal')
 	top.command_entry.configure(state='normal')
 	top.ref_reg.configure(state='normal')
 	top.source_feedback_button.configure(state='normal')
 	top.source_feedback_entry.configure(state='normal')
-	top.source_table.bind("<<ListboxSelect>>", onClick_trigger)
-	entity.connect()
+	top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
+    #top.machine_table.bind("<<ListboxSelect>>", onClick_machinecode)
+    entity.connect()
 
-def onClick_trigger(event):
-    w = event.widget
-    index = int(w.curselection()[0])
-    value = w.get(index)
-    top.trig_fault.configure(state='normal')
-    printOutput('You selected line %d: "%s"' % (index +1, value))
-    entity.showAssemCode(index)
+# def onClick_machinecode(event):
+#     try:
+#         w = top.machine_table
+#         index = int(w.curselection()[0])
+#         value = w.get(index)
+#         top.trig_fault_button.configure(state='normal')
+#         printOutput('You selected line %d: "%s"' % (index +1, value))
+#         entity.showAssemCode(index)
+#     except:
+#         return 
+    
     #top.trig_fault.configure(state='normal')
 
-def onClick_feedback(event):
-    w = event.widget
+def onClick_sourcecode(event):
+    w = top.source_table
+    if not  w.curselection():
+        return
     index = int(w.curselection()[0])
     value = w.get(index)
     top.source_feedback_button.configure(state='normal')
-    top.source_feedback_entry.configure(state='active')
-    printOutput('You selected line %d: "%s"' % (index +1, value))
+    top.source_feedback_entry.configure(state='normal')
+    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=1)
+    top.trig_fault_progress.update()
+    #printOutput('You selected line %d: "%s"' % (index +1, value))
     entity.showAssemCode(index)
-    #top.trig_fault.configure(state='normal')
+    top.trig_fault_button.configure(state='normal')
+
 
 def clearBox(event):
 	event.widget.delete(0,END)
@@ -112,14 +142,37 @@ def onClick_enter():
 	clearBox(top)
 
 def triggerFault():
-    #top.trig_fault.configure(state='disabled')
-    #top.stop_fault.configure(state='active')
+    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=red,width=1)
+    top.trig_fault_button.configure(state='disabled')
+
+
     entity.triggerFault()
+
+
+    #when trigger ends
+    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=green,width=1)
+    top.trig_fault_progress.update()
+    top.trig_fault_button.configure(state='active')
+    
 
 def getFeedback():
 	#dialog box of source code to select line
-	entity.selectFeedback()
-	print "select line"
+    lineNo = top.source_feedback_entry.get()
+
+    print top.source_table.size()
+    if lineNo.isdigit() and int(lineNo) <= top.source_table.size() and int(lineNo) >0:
+        top.source_feedback_entry.config(background=green)
+        top.source_feedback_entry.update()
+        printOutput("FeedBack selected at line " + lineNo)
+        entity.selectFeedback(lineNo)
+    else:
+        top.source_feedback_entry.config(background=pink)
+        top.source_feedback_entry.update()
+
+
+
+
+
 
 def addBreakpoint():
 	print "add breakpoint"
@@ -146,17 +199,6 @@ def mouseWheelEvent(event):
     top.scrollBar.yview('scroll',event.delta, 'units')
 
 # GUI Core
-
-lgrey = '#d9d9d9'
-black = '#000000'
-white = '#ffffff'
-
-font_app_title = "-family {Bitstream Vera Serif} -size 20 -weight bold -slant roman -underline 0 -overstrike 0"
-font_app_button = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
-font_table_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 1 -overstrike 0"
-font_table_list = "-family {DejaVu Sans} -size 10 -weight normal -slant roman -underline 0 -overstrike 0"
-font_table_attr = "-family {DejaVu Sans} -size 10 -weight normal -slant italic -underline 0 -overstrike 0"
-font_command_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman -underline 0 -overstrike 0"
 
 class mainwindow:
 
@@ -196,14 +238,13 @@ class mainwindow:
         self.machine_title.configure(text="Machine Code", font=font_table_title, anchor=NW)
         self.machine_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
 
-        self.trig_fault = Button(self.machine_frame)
-        self.trig_fault.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
-        self.trig_fault.place(relx=0.75, rely=0.01, height=30, width=150)
+        self.trig_fault_button = Button(self.machine_frame)
+        self.trig_fault_button.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
+        self.trig_fault_button.place(relx=0.75, rely=0.01, height=30, width=150)
 
-        # green_oval = 
-        # self.trig_fault_progress = Canvas(self.machine_frame, image=green_oval)
-        # #self.trig_fault_progress.configure(text="No Process", fg=white, bg=black, font=font_table_attr)
-        # self.trig_fault_progress.place(relx=0.75, rely=0.01, relheight=0.075, relwidth=0.15)
+        self.trig_fault_progress = Canvas(self.machine_frame)
+        self.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=2)
+        self.trig_fault_progress.place(relx=0.7, rely=0.02, relheight=0.075, relwidth=0.05)
 
         self.machine_table = Listbox(self.machine_frame)
         self.machine_table.configure(relief=RIDGE, font=font_table_list)

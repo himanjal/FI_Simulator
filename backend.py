@@ -26,9 +26,11 @@ class Model:
     topLevel = None
     pluginProcess = None
     tempf = None
-    machineCode =[]
+    feedbackLine = None
+    #machineCode =[]
     pointer = 0
-    machineIndex = 0
+    #machineIndex = 0
+    regList = ['r0', 'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12', 'sp', 'lr', 'pc', 'cpsr']
 
     def __init__(self, top):
         self.topLevel = top
@@ -37,10 +39,25 @@ class Model:
 
     def printOutput(self, line):
         #print line
+        time.sleep(0.1)
+        if line == "(gdb) ": return
+        line = " > " + line
         self.topLevel.gdb_table.insert(END, line)
         self.topLevel.gdb_table.update()
         self.topLevel.gdb_table.see("end")
 
+
+
+    def selectFeedback(self, lineNo):
+        if self.feedbackLine is None:
+            self.feedbackLine = lineNo
+            self.topLevel.source_table.itemconfig(int(lineNo) - 1,{'bg':'#98FB98'})
+        else:
+            self.topLevel.source_table.itemconfig(int(self.feedbackLine) - 1,{'bg':'white'})
+            self.topLevel.source_table.itemconfig(int(lineNo) - 1,{'bg':'#98FB98'})
+            self.feedbackLine = lineNo
+
+        self.topLevel.source_table.update()
 
 
     def populateFaults(self):
@@ -68,10 +85,10 @@ class Model:
         self.pluginProcess.stdin.write("target remote localhost: 1234\n")
         self.pluginProcess.stdin.write("set pagination off\n")
 
-        #self.printOutput("GDB Connected to QEMU")
-        self.readGDB()
+        line = self.read()
+
         self.sendCommand("info R")
-        self.addBreakpoints()
+        #self.addBreakpoints()
 
 
     def showAssemCode(self, lineNo):
@@ -80,41 +97,40 @@ class Model:
         self.topLevel.machine_table.delete(0, END)
         self.pluginProcess.stdin.write("B " + str(lineNo + 1) + "\n")
         #self.sendCommand("B " + str(lineNo + 1))
-        time.sleep(0.1)
-        self.tempf.seek(self.pointer)
-        lines = self.tempf.read().split()
-        print lines
-        if "note" in lines[0].lower():
-            bpNum = lines[9]
-            bpAddr = lines[11][:-1]
+        lines = self.read().split()
+        #print lines
+
+        if "(gdb)" in lines[0].lower():
+            bpNum = lines[2]
+            bpAddr = lines[4][:-1]
         else:
             bpNum = lines[1]
             bpAddr = lines[3][:-1]
 
-        self.pointer = self.tempf.tell()
         self.updateMachineCode(bpAddr)
         #self.sendCommand("info B")
-        self.sendCommand("del " + str(bpNum))
+        self.pluginProcess.stdin.write("del " + str(bpNum) + "\n")
 
 
 
     def updateMachineCode(self, bpAddr):
 
+        
+        #print "Address: " + bpAddr
         self.topLevel.machine_table.delete(0, END)
-        print "Address: " + bpAddr
         self.pluginProcess.stdin.write("disassemble " + bpAddr + "\n")
         asmCode = self.read()
-        self.machineCode = []
+        #self.machineCode = []
 
         i = 0
         for line in asmCode.split("\n"):
             if "dump" in line.lower() or "(gdb)" in line: continue
-            self.machineCode.append(line)
+            #self.machineCode.append(line)
             self.topLevel.machine_table.insert(END, line)
             
             if bpAddr[2:] in line.split()[0]:
                 self.topLevel.machine_table.select_set(i)
-                self.machineIndex = i
+                #self.machineIndex = i
             i = i + 1
 
         self.topLevel.machine_table.update()
@@ -122,9 +138,36 @@ class Model:
 
 
     def triggerFault(self):
-        print self.topLevel.machine_table.get(self.topLevel.machine_table.curselection())
+        self.connect()
+        line = self.topLevel.machine_table.get(self.topLevel.machine_table.curselection())
+        bpAddr = line.split()[0]
 
 
+        # ADD BreakPOint
+        self.sendCommand("B *" + bpAddr)
+
+        # Continue Code
+        self.sendCommand("continue")
+
+        
+        #Del Current BP
+        self.sendCommand("del")
+
+        #ADD FeedBack BreakPoint
+        self.sendCommand("B " + self.feedbackLine)
+
+        #Update REG Values
+        self.updateRegs()
+
+        #Continue for feedback 
+        self.sendCommand("continue")
+
+
+
+
+    def updateRegs(self):
+        for reg in self.regList:
+            self.pluginProcess.stdin.write("info R " + reg + "\n")
 
 
 
@@ -215,13 +258,13 @@ class Model:
 
 
     def sendCommand(self, line):
-        self.topLevel.gdb_table.insert(END,line)
     	self.pluginProcess.stdin.write(line + "\n")
 
     	if line == "info R" or line == "info r":
     		self.readReg()
     	else:
-    		self.readGDB()
+            self.printOutput(line)
+            self.readGDB()
 
 
     def read(self):
@@ -235,7 +278,7 @@ class Model:
     def readGDB(self):
     	data = self.read()
         for line in data.split('\n'):
-            if "(gdb)" in line: continue
+            #if "(gdb)" in line: continue
             self.printOutput(line)
         
 
