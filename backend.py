@@ -79,6 +79,7 @@ class Model:
         #print lineNo
         self.topLevel.machine_table.delete(0, END)
         self.pluginProcess.stdin.write("B " + str(lineNo + 1) + "\n")
+        #self.sendCommand("B " + str(lineNo + 1))
         time.sleep(0.1)
         self.tempf.seek(self.pointer)
         lines = self.tempf.read().split()
@@ -93,49 +94,66 @@ class Model:
         self.pointer = self.tempf.tell()
         self.updateMachineCode(bpAddr)
         #self.sendCommand("info B")
-        #self.sendCommand("del " + str(bpNum))
+        self.sendCommand("del " + str(bpNum))
 
 
 
     def updateMachineCode(self, bpAddr):
 
+        self.topLevel.machine_table.delete(0, END)
         print "Address: " + bpAddr
         self.pluginProcess.stdin.write("disassemble " + bpAddr + "\n")
-        time.sleep(0.2)
-        self.tempf.seek(self.pointer)
-        machineCode = self.tempf.read()
-        self.pointer = self.tempf.tell()
-        #print machineCode
+        asmCode = self.read()
         self.machineCode = []
 
         i = 0
-        for line in machineCode.split("\n"):
+        for line in asmCode.split("\n"):
+            if "dump" in line or "(gdb)" in line: continue
             self.machineCode.append(line)
             self.topLevel.machine_table.insert(END, line)
+            
             if bpAddr[2:] in line.split()[0]:
+                print line.split()[0]
                 self.topLevel.machine_table.itemconfig(i,{'bg':'light grey'})
                 self.machineIndex = i
             else:
                 self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
             i = i + 1
 
+        self.topLevel.machine_table.update()
+
 
 
     def triggerFault(self):
 
         index = self.machineIndex
-        for i in range(index, len(self.machineCode) - 1):
-            self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
-            self.topLevel.machine_table.itemconfig(i+1,{'bg':'light grey'})
-            self.topLevel.machine_table.update()
-            line = self.machineCode[i]
+        length = len(self.machineCode) - 1
+        while True:
+            #self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
+            #self.topLevel.machine_table.itemconfig(i+1,{'bg':'light grey'})
+            #self.topLevel.machine_table.update()
+            line = self.machineCode[self.machineIndex]
             print line
-            reg = re.search("r\d{1}",line)
+            reg = re.findall("r\d{1}",line)
             if not reg:
                 print "no reg"
-                continue
-            print reg.group()
-            time.sleep(1)
+            else:
+                for r in reg:
+                    print r ,
+                print ""
+                #self.sendCommand("i r " + r)
+
+            print "index = " + str(self.machineIndex) + "Length = " + str(len(self.machineCode)) 
+            if self.machineIndex == len(self.machineCode) - 1:
+                break
+
+            self.pluginProcess.stdin.write("si\n")
+            add = self.read()
+            self.printOutput(add)
+            address = add.split()[0] 
+            if address.startswith("0x"):
+                self.updateMachineCode(address)
+            time.sleep(2)
 
 
 
@@ -179,12 +197,8 @@ class Model:
 
 
     def readReg(self):
-
-    	time.sleep(0.1)
         self.topLevel.reg_table.delete(0,END)
-    	self.tempf.seek(self.pointer)
-    	line = self.tempf.read()
-    	self.pointer = self.tempf.tell()
+    	line = self.read()
     	for text in line.split('\n')[:-1]:
     		row = ""
     		for word in text.split():
@@ -203,15 +217,20 @@ class Model:
     		self.readGDB()
 
 
+    def read(self):
+        time.sleep(0.1)
+        self.tempf.seek(self.pointer)
+        line  = self.tempf.read()
+        self.pointer = self.tempf.tell()
+        return line
 
 
     def readGDB(self):
-    	time.sleep(0.1)
-        self.tempf.seek(self.pointer)
-        for line in self.tempf.read().split('\n'):
+    	data = self.read()
+        for line in data.split('\n'):
+            if "(gdb)" in line: continue
             self.printOutput(line)
-        self.pointer = self.tempf.tell()
-
+        
 
     def importXML(self, fileName):
         self.xmlFile = untangle.parse(fileName)
