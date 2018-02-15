@@ -204,14 +204,14 @@ class mainwindow:
         self.machine_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
 
         self.machine_table = Listbox(self.machine_frame)
+        self.machine_table.configure(relief=RIDGE, font=font_table_list)
+        self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
+        self.machine_table.insert(END,"Click on a Source Code line to view Machine Code")
         self.machine_table_scrollBar = Scrollbar(self.machine_table, orient="vertical")
         self.machine_table_scrollBar.config(command=self.machine_table.yview)
         self.machine_table_scrollBar.pack(side="right", fill="y")
+        self.machine_table.config(yscrollcommand=self.machine_table_scrollBar.set)
         self.machine_table.bind("<MouseWheel>", mouseWheelEvent)
-        self.machine_table.configure(relief=RIDGE, font=font_table_list, yscrollcommand=self.machine_table_scrollBar.set)
-        self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
-        self.machine_table.bindtags((self.machine_table, self, "<MouseWheel>"))
-        self.machine_table.insert(END,"Click on a Source Code line to view Machine Code")
 
     def source(self, top):
 
