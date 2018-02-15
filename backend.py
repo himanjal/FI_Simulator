@@ -108,16 +108,13 @@ class Model:
 
         i = 0
         for line in asmCode.split("\n"):
-            if "dump" in line or "(gdb)" in line: continue
+            if "dump" in line.lower() or "(gdb)" in line: continue
             self.machineCode.append(line)
             self.topLevel.machine_table.insert(END, line)
             
             if bpAddr[2:] in line.split()[0]:
-                print line.split()[0]
-                self.topLevel.machine_table.itemconfig(i,{'bg':'light grey'})
+                self.topLevel.machine_table.select_set(i)
                 self.machineIndex = i
-            else:
-                self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
             i = i + 1
 
         self.topLevel.machine_table.update()
@@ -125,6 +122,14 @@ class Model:
 
 
     def triggerFault(self):
+        print self.topLevel.machine_table.get(self.topLevel.machine_table.curselection())
+
+
+
+
+
+
+    def triggerFault2(self):
 
         index = self.machineIndex
         length = len(self.machineCode) - 1
@@ -204,6 +209,8 @@ class Model:
     		for word in text.split():
     			row = "{0}{1:12}".format(row, word)
     		self.topLevel.reg_table.insert(END, row)
+
+
 
 
 
