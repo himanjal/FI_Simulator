@@ -71,29 +71,32 @@ def onClick_cFile():
     	for line in strF.split('\n'):
     		top.source_table.insert(END, line)
     	myfile.close()
-    onClick_connectQemu()
-
-
-# Function when clicking on the "Connect to Qemu" Button
-# Put Events in here to first activate
-def onClick_connectQemu():
-	top.command_enter.configure(state='active')
+	top.command_enter.configure(state='normal')
 	top.command_entry.configure(state='normal')
-	top.ref_reg.configure(state='active')
-	top.source_table.bind("<<ListboxSelect>>", clickProgLine)
-	#top.machine_table.bind("<<ListboxSelect>>", clickProgLine2)
+	top.ref_reg.configure(state='normal')
+	top.source_feedback_button.configure(state='normal')
+	top.source_feedback_entry.configure(state='normal')
+	top.source_table.bind("<<ListboxSelect>>", onClick_trigger)
 	entity.connect()
-	#printOutput("Connected to Qemu Sucessfully ...")
 
-
-def clickProgLine(event):
+def onClick_trigger(event):
     w = event.widget
     index = int(w.curselection()[0])
     value = w.get(index)
     top.trig_fault.configure(state='normal')
     printOutput('You selected line %d: "%s"' % (index +1, value))
     entity.showAssemCode(index)
-    top.trig_fault.configure(state='active')
+    #top.trig_fault.configure(state='normal')
+
+def onClick_feedback(event):
+    w = event.widget
+    index = int(w.curselection()[0])
+    value = w.get(index)
+    top.source_feedback_button.configure(state='normal')
+    top.source_feedback_entry.configure(state='active')
+    printOutput('You selected line %d: "%s"' % (index +1, value))
+    entity.showAssemCode(index)
+    #top.trig_fault.configure(state='normal')
 
 def clearBox(event):
 	event.widget.delete(0,END)
@@ -108,15 +111,18 @@ def onClick_enter():
 	entity.sendCommand(top.command_entry.get())
 	clearBox(top)
 
-
 def triggerFault():
     #top.trig_fault.configure(state='disabled')
     #top.stop_fault.configure(state='active')
     entity.triggerFault()
 
-# def stopFault():
-# 	top.stop_fault.configure(state='disabled')
-# 	print 'STOPPING FAULT IF NEEDED'
+def getFeedback():
+	#dialog box of source code to select line
+	entity.selectFeedback()
+	print "select line"
+
+def addBreakpoint():
+	print "add breakpoint"
 
 # ***** GUI *****
 
@@ -130,7 +136,7 @@ def create_mainwindow():
     automateTest()
     root.mainloop()
 
-# When Exiting Application
+# When ExitinFeedbackg Application
 def destroy_mainwindow():
     global w
     w.destroy()
@@ -156,10 +162,9 @@ class mainwindow:
 
     def __init__(self, top):
 
-        top.geometry("1500x1000+335+110")
+        top.geometry("1500x1000")
         top.title("Fault Injection Simulator")
-        top.configure(background=white)
-        top.configure(highlightcolor=black)
+        top.configure(highlightcolor=black, background=white)
 
         self.title(top)
         self.menu(top)
@@ -181,18 +186,6 @@ class mainwindow:
         self.title_label.configure(text="Fault Injection Simulator", font=font_app_title, anchor="center")
         self.title_label.place(relx=0, rely=0, relheight=1.00, relwidth=1.00)
 
-        self.trig_fault = Button(self.title_frame)
-        self.trig_fault.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
-        self.trig_fault.place(relx=0.01, rely=0.3, height=30, width=150)
-
-        # self.stop_fault = Button(self.title_frame)
-        # self.stop_fault.configure(text="Stop Fault", font=font_button, state='disabled')
-        # self.stop_fault.place(relx=0.13, rely=0.3, height=30, width=150)
-
-        self.ref_reg = Button(self.title_frame)
-        self.ref_reg.configure(text="Refresh Registers", font=font_app_button, state='disabled', command=refreshRegisters)
-        self.ref_reg.place(relx=0.89, rely=0.3, height=30, width=150)
-
     def machine(self, top):
 
         self.machine_frame = Frame(top)
@@ -202,6 +195,15 @@ class mainwindow:
         self.machine_title = Label(self.machine_frame)
         self.machine_title.configure(text="Machine Code", font=font_table_title, anchor=NW)
         self.machine_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
+
+        self.trig_fault = Button(self.machine_frame)
+        self.trig_fault.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
+        self.trig_fault.place(relx=0.75, rely=0.01, height=30, width=150)
+
+        # green_oval = 
+        # self.trig_fault_progress = Canvas(self.machine_frame, image=green_oval)
+        # #self.trig_fault_progress.configure(text="No Process", fg=white, bg=black, font=font_table_attr)
+        # self.trig_fault_progress.place(relx=0.75, rely=0.01, relheight=0.075, relwidth=0.15)
 
         self.machine_table = Listbox(self.machine_frame)
         self.machine_table.configure(relief=RIDGE, font=font_table_list)
@@ -222,11 +224,24 @@ class mainwindow:
         self.source_title = Label(self.source_frame)
         self.source_title.configure(text="Source Code", font=font_table_title, anchor=NW)
         self.source_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
+
+        self.source_feedback_label = Label(self.source_frame)
+        self.source_feedback_label.configure(text="Line No.", font=font_app_button)
+        self.source_feedback_label.place(relx=0.5, rely=0.01, height=30, width=150)
+
+        self.source_feedback_entry = Entry(self.source_frame)
+        self.source_feedback_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
+        self.source_feedback_entry.bind('<Return>', getFeedback)
+        self.source_feedback_entry.place(relx=0.66, rely=0.01, height=30, width=60)
+        
+        self.source_feedback_button = Button(self.source_frame)
+        self.source_feedback_button.configure(text="Update Feedback", font=font_app_button, state='disabled', command=getFeedback)
+        self.source_feedback_button.place(relx=0.75, rely=0.01, height=30, width=150)
         
         self.source_table = Listbox(self.source_frame)
         self.source_table.configure(relief=RIDGE, font=font_table_list)
         self.source_table.place(relx=0.02, rely=0.075, relheight=0.9, relwidth=0.96)
-        self.source_table.insert(END,"Select { Open Files > Open Source File } to view")
+        self.source_table.insert(END,"Select { Open Source File } to view")
         self.source_table_scrollBar = Scrollbar(self.source_table, orient="vertical")
         self.source_table_scrollBar.config(command=self.source_table.yview)
         self.source_table_scrollBar.pack(side="right", fill="y")
@@ -244,14 +259,18 @@ class mainwindow:
         self.xml_title.configure(text="XML Table", font=font_table_title, anchor=NW)
         self.xml_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
 
+        self.xml_addBreak = Button(self.xml_frame)
+        self.xml_addBreak.configure(text="Add Breakpoints", font=font_app_button, state='disabled', command=addBreakpoint)
+        self.xml_addBreak.place(relx=0.65, rely=0.01, height=30, width=150)
+
         self.xml_attr = Label(self.xml_frame)
         self.xml_attr.configure(text="Num   Breakpoint      Loop   Register                                 Mask", font=font_table_attr, anchor=NW)
-        self.xml_attr.place(relx=0.02, rely=0.075, relheight=0.1, relwidth=0.96)
+        self.xml_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)
 
         self.xml_table = Listbox(self.xml_frame)
         self.xml_table.configure(relief=RIDGE, font=font_table_list)
         self.xml_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
-        self.xml_table.insert(END,"Select { Open Files > Open XML File } to view")
+        self.xml_table.insert(END,"Select { Open XML File } to view")
         self.xml_table_scrollBar = Scrollbar(self.xml_table, orient="vertical")
         self.xml_table_scrollBar.config(command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
@@ -268,9 +287,13 @@ class mainwindow:
         self.reg_title.configure(text="Register Table", font=font_table_title, anchor=NW)
         self.reg_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.5)
 
+        self.ref_reg = Button(self.reg_frame)
+        self.ref_reg.configure(text="Refresh Registers", font=font_app_button, state='disabled', command=refreshRegisters)
+        self.ref_reg.place(relx=0.55, rely=0.01, height=30, width=150)
+
         self.reg_attr = Label(self.reg_frame)
         self.reg_attr.configure(text="Name     Address      Value", font=font_table_attr, anchor=NW)
-        self.reg_attr.place(relx=0.02, rely=0.075, relheight=0.1, relwidth=0.96)        
+        self.reg_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)        
 
         self.reg_table = Listbox(self.reg_frame)
         self.reg_table.configure(relief=RIDGE, font=font_table_list)
@@ -323,11 +346,8 @@ class mainwindow:
 
     def menu(self, top):
     	self.menuBar = Menu(top)
-    	filemenu = Menu(self.menuBar)
-    	filemenu.add_command(label="Open XML File", command=onClick_xmlFile)
-    	filemenu.add_command(label="Open Source File", command=onClick_cFile)
-    	self.menuBar.add_cascade(label="Open Files",menu=filemenu)
-    	self.menuBar.add_command(label="Connect to Server",command=onClick_connectQemu)
+    	self.menuBar.add_command(label="Open Source File",command=onClick_cFile)
+    	self.menuBar.add_command(label="Open XML File",command=onClick_xmlFile)
     	self.menuBar.add_command(label="Exit Application",command=top.quit)
     	top.config(menu=self.menuBar)
 
