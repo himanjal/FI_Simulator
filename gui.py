@@ -110,7 +110,7 @@ def onClick_enter():
 
 
 def triggerFault():
-    top.trig_fault.configure(state='disabled')
+    #top.trig_fault.configure(state='disabled')
     #top.stop_fault.configure(state='active')
     entity.triggerFault()
 
