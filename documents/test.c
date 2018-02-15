@@ -3,7 +3,6 @@
 int add(int a, int b)
 {
 	int sum = a + b;
-	//printf("%s\n",sum );
 	return sum;
 }
 

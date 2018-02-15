@@ -28,7 +28,7 @@ def automateTest():
 # Insert print terminal now on GDB Output
 def printOutput(line):
     output = " > [ " + line + " ]"
-    print output
+    #print output
     top.gdb_table.insert(END, output)
 
 def refreshRegisters():
