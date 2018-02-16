@@ -91,9 +91,14 @@ def onClick_cFile():
     top.reg_entry2.configure(state='normal')
     top.source_feedback_button.configure(state='normal')
     top.source_feedback_entry.configure(state='normal')
+    top.gdb_connect.configure(state='normal')
     top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
     #top.machine_table.bind("<<ListboxSelect>>", onClick_machinecode)
+    connectGDB()
+
+def connectGDB():
     entity.connect()
+    entity.printOutput("Connected to GDB Server")
 
 # def onClick_machinecode(event):
 #     try:
@@ -372,6 +377,10 @@ class mainwindow:
         self.gdb_title = Label(self.gdb_frame)
         self.gdb_title.configure(text="GNU Debugger", font=font_table_title, anchor=NW)
         self.gdb_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.2)
+
+        self.gdb_connect = Button(self.gdb_frame)
+        self.gdb_connect.configure(text="Connect to GDB Server", font=font_app_button, state='disabled', command=connectGDB)
+        self.gdb_connect.place(relx=0.75, rely=0.01, height=30, width=200)
 
         self.gdb_table = Listbox(self.gdb_frame)
         self.gdb_table.configure(relief=RIDGE, font=font_table_list)
