@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import time
 import ttk
+import tkFont
 from backend import initModel
 import os
 import inspect
@@ -16,7 +17,6 @@ import inspect
 # ***** Variables *****
 entity = None
 top = None
-
 
 lgrey = '#d9d9d9'
 black = '#000000'
@@ -41,8 +41,6 @@ def automateTest():
 	# onClick_connectQemu()
 	return
 
-
-
 def refreshRegisters():
     entity.sendCommand("info R")
 
@@ -55,14 +53,13 @@ def onClick_xmlFile():
         return
     entity.importXML(filenameXML)
     entity.printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
-    top.xml_table.delete(0,END)	
-    i = 1
+    top.xml_table.delete(*top.xml_table.get_children())
+    i = 1	
     for item in entity.getFaults():
-    	#item_list = "{0}{1}{2}".format(i, item.bp, item.masks)
-        item_list = "{0:<10}{1:<20}{2:<10}{3:<40}{4:<5}".format(i, item.bp, item.lp, item.regList, item.mask)
-        top.xml_table.insert(END, item_list)
+        item_list = (i, item.bp, item.lp, item.regList, item.mask)
+        top.xml_table.insert('', END, values=item_list)
         i = i + 1
-    top.xml_addBreak.configure(state='active')
+    top.xml_addBreak.configure(state='normal')
 
 
 # Function when clicking on the "Open C File" Button
@@ -150,7 +147,7 @@ def triggerFault():
     #when trigger ends
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=green,width=1)
     top.trig_fault_progress.update()
-    top.trig_fault_button.configure(state='active')
+    top.trig_fault_button.configure(state='normal')
     
 
 def getFeedback():
@@ -244,7 +241,7 @@ class mainwindow:
         self.machine_table.configure(relief=RIDGE, font=font_table_list)
         self.machine_table.place(relx=0.02, rely=0.09, relheight=0.875, relwidth=0.96)
         self.machine_table.insert(END,"Click on a Source Code line to view Machine Code")
-        self.machine_table_scrollBar = Scrollbar(self.machine_table, orient="vertical")
+        self.machine_table_scrollBar = ttk.Scrollbar(self.machine_table, orient="vertical")
         self.machine_table_scrollBar.config(command=self.machine_table.yview)
         self.machine_table_scrollBar.pack(side="right", fill="y")
         self.machine_table.config(yscrollcommand=self.machine_table_scrollBar.set)
@@ -277,7 +274,7 @@ class mainwindow:
         self.source_table.configure(relief=RIDGE, font=font_table_list)
         self.source_table.place(relx=0.02, rely=0.075, relheight=0.9, relwidth=0.96)
         self.source_table.insert(END,"Select { Open Source File } to view")
-        self.source_table_scrollBar = Scrollbar(self.source_table, orient="vertical")
+        self.source_table_scrollBar = ttk.Scrollbar(self.source_table, orient="vertical")
         self.source_table_scrollBar.config(command=self.source_table.yview)
         self.source_table_scrollBar.pack(side="right", fill="y")
         self.source_table.config(yscrollcommand=self.source_table_scrollBar.set)
@@ -298,19 +295,16 @@ class mainwindow:
         self.xml_addBreak.configure(text="Add Breakpoints", font=font_app_button, state='disabled', command=addBreakpoint)
         self.xml_addBreak.place(relx=0.65, rely=0.01, height=30, width=150)
 
-        self.xml_attr = Label(self.xml_frame)
-        self.xml_attr.configure(text="Num   Breakpoint      Loop   Register                                    Mask", font=font_table_attr, anchor=NW)
-        self.xml_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)
-
-        self.xml_table = Listbox(self.xml_frame)
-        self.xml_table.configure(relief=RIDGE, font=font_table_list)
-        self.xml_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
-        self.xml_table.insert(END,"Select { Open XML File } to view")
-        self.xml_table_scrollBar = Scrollbar(self.xml_table, orient="vertical")
-        self.xml_table_scrollBar.config(command=self.xml_table.yview)
+        header = ["#","Breakpoint","Lp","Register","Mask"]
+       	self.xml_table = ttk.Treeview(self.xml_frame, selectmode="none",columns=header, show="headings")
+       	self.xml_table.place(relx=0.02, rely=0.0925, relheight=0.87, relwidth=0.945)
+        self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
-        self.xml_table.config(yscrollcommand=self.xml_table_scrollBar.set)
-        self.xml_table.bind("<MouseWheel>", mouseWheelEvent)
+       	self.xml_table.configure(yscrollcommand=self.xml_table_scrollBar.set)
+       	
+       	for col in header:
+       		self.xml_table.heading(col, text=col.title())
+       		self.xml_table.column(col, width=5)
 
     def reg(self, top):
 
@@ -326,19 +320,30 @@ class mainwindow:
         self.ref_reg.configure(text="Refresh Registers", font=font_app_button, state='disabled', command=refreshRegisters)
         self.ref_reg.place(relx=0.55, rely=0.01, height=30, width=150)
 
-        self.reg_attr = Label(self.reg_frame)
-        self.reg_attr.configure(text="Name     Address      Value", font=font_table_attr, anchor=NW)
-        self.reg_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)        
+        # self.reg_attr = Label(self.reg_frame)
+        # self.reg_attr.configure(text="Name     Address      Value", font=font_table_attr, anchor=NW)
+        # self.reg_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)        
 
-        self.reg_table = Listbox(self.reg_frame)
-        self.reg_table.configure(relief=RIDGE, font=font_table_list)
-        self.reg_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
-        self.reg_table.insert(END,"Connect to Server to view Registers")
-        self.reg_table_scrollBar = Scrollbar(self.reg_table, orient="vertical")
-        self.reg_table_scrollBar.config(command=self.reg_table.yview)
+        # self.reg_table = Listbox(self.reg_frame)
+        # self.reg_table.configure(relief=RIDGE, font=font_table_list)
+        # self.reg_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
+        # self.reg_table.insert(END,"Connect to Server to view Registers")
+        # self.reg_table_scrollBar = ttk.Scrollbar(self.reg_table, orient="vertical")
+        # self.reg_table_scrollBar.config(command=self.reg_table.yview)
+        # self.reg_table_scrollBar.pack(side="right", fill="y")
+        # self.reg_table.config(yscrollcommand=self.reg_table_scrollBar.set)
+        # self.reg_table.bind("<MouseWheel>", mouseWheelEvent)
+
+        header = ["Name","Address","Value"]
+       	self.reg_table = ttk.Treeview(self.reg_frame, selectmode="none",columns=header, show="headings")
+       	self.reg_table.place(relx=0.02, rely=0.0925, relheight=0.87, relwidth=0.945)
+        self.reg_table_scrollBar = ttk.Scrollbar(self.reg_table, orient="vertical", command=self.reg_table.yview)
         self.reg_table_scrollBar.pack(side="right", fill="y")
-        self.reg_table.config(yscrollcommand=self.reg_table_scrollBar.set)
-        self.reg_table.bind("<MouseWheel>", mouseWheelEvent)
+       	self.reg_table.configure(yscrollcommand=self.reg_table_scrollBar.set)
+       	
+       	for col in header:
+       		self.reg_table.heading(col, text=col.title())
+       		self.reg_table.column(col, width=5)
 
     def gdb(self, top):
 
@@ -354,7 +359,7 @@ class mainwindow:
         self.gdb_table.configure(relief=RIDGE, font=font_table_list)
         self.gdb_table.place(relx=0.015, rely=0.08, relheight=0.9, relwidth=0.98)
         self.gdb_table.insert(END,"Connect to Server to Debug")
-        self.gdb_table_scrollBar = Scrollbar(self.gdb_table, orient="vertical")
+        self.gdb_table_scrollBar = ttk.Scrollbar(self.gdb_table, orient="vertical")
         self.gdb_table_scrollBar.config(command=self.gdb_table.yview)
         self.gdb_table_scrollBar.pack(side="right", fill="y")
         self.gdb_table.config(yscrollcommand=self.gdb_table_scrollBar.set)
