@@ -42,10 +42,12 @@ def automateTest():
 	return
 
 def refreshRegisters():
+    entity.sendCommand("info R")
+
+def setRegisters():
     reg = top.reg_entry1.get()
     val = top.reg_entry2.get()
     entity.sendCommand("set $" + reg + "=" + val)
-    entity.sendCommand("info R")
 
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
@@ -91,6 +93,8 @@ def onClick_cFile():
     top.reg_entry2.configure(state='normal')
     top.source_feedback_button.configure(state='normal')
     top.source_feedback_entry.configure(state='normal')
+    top.source_feedback_button.configure(state='normal')
+    top.source_feedback_entry.configure(state='normal')
     top.gdb_connect.configure(state='normal')
     top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
     #top.machine_table.bind("<<ListboxSelect>>", onClick_machinecode)
@@ -99,6 +103,7 @@ def onClick_cFile():
 def connectGDB():
     entity.connect()
     entity.printOutput("Connected to GDB Server")
+    refreshRegisters()
 
 # def onClick_machinecode(event):
 #     try:
@@ -113,21 +118,30 @@ def connectGDB():
     
     #top.trig_fault.configure(state='normal')
 
+def onClick_registers(event):
+    w = top.source_table
+    if not  w.curselection():
+        return
+    index = int(w.curselection()[0])
+    value = w.get(index)
+    print value
+    top.source_feedback_button.configure(state='normal')
+    top.source_feedback_entry.configure(state='normal')
+
 def onClick_sourcecode(event):
     w = top.source_table
     if not  w.curselection():
         return
     index = int(w.curselection()[0])
     value = w.get(index)
-    top.source_feedback_button.configure(state='normal')
-    top.source_feedback_entry.configure(state='normal')
     #top.source_feedback_entry.bind('<Return>', getFeedback)
-    entity.selectFeedback(index+1)
+    #entity.selectFeedback(index+1)
+    top.source_feedback_entry.config(background=green)
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=1)
     top.trig_fault_progress.update()
     top.source_feedback_entry.delete(0,END)
     top.source_feedback_entry.insert(0,index+1)
-    getFeedback()
+    #getFeedback()
     #entity.printOutput('You selected line %d: "%s"' % (index +1, value))
     entity.showAssemCode(index)
     top.trig_fault_button.configure(state='normal')
@@ -155,15 +169,13 @@ def triggerFault():
 
 
     #when trigger ends
-    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=green,width=1)
+    #top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=green,width=1)
     top.trig_fault_progress.update()
     top.trig_fault_button.configure(state='normal')
-    
 
 def getFeedback():
 	#dialog box of source code to select line
     lineNo = top.source_feedback_entry.get()
-
     print top.source_table.size()
     if lineNo.isdigit() and int(lineNo) <= top.source_table.size() and int(lineNo) >0:
         top.source_feedback_entry.config(background=green)
@@ -287,7 +299,7 @@ class mainwindow:
         self.source_feedback_button.place(relx=0.75, rely=0.01, height=30, width=150)
         
         self.source_table = Listbox(self.source_frame)
-        self.source_table.configure(relief=RIDGE, font=font_table_list)
+        self.source_table.configure(relief=RIDGE, font=font_table_list, selectbackground=lgrey)
         self.source_table.place(relx=0.02, rely=0.075, relheight=0.9, relwidth=0.96)
         self.source_table.insert(END,"Select { Open Source File } to view")
         self.source_table_scrollBar = ttk.Scrollbar(self.source_table, orient="vertical")
@@ -312,7 +324,7 @@ class mainwindow:
         self.xml_addBreak.place(relx=0.65, rely=0.01, height=30, width=150)
 
         header = ["#","Breakpoint","Loop","Register","Mask"]
-       	self.xml_table = ttk.Treeview(self.xml_frame, selectmode="none",columns=header, show="headings")
+       	self.xml_table = ttk.Treeview(self.xml_frame,columns=header, show="headings")
        	self.xml_table.place(relx=0.02, rely=0.0925, relheight=0.87, relwidth=0.945)
         self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
