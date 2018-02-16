@@ -41,12 +41,10 @@ class Model:
         #print line
         time.sleep(0.1)
         if line == "(gdb) ": return
-        line = " > " + line
+        line = " > [" + line + "]"
         self.topLevel.gdb_table.insert(END, line)
         self.topLevel.gdb_table.update()
         self.topLevel.gdb_table.see("end")
-
-
 
     def selectFeedback(self, lineNo):
         if self.feedbackLine is None:
@@ -250,7 +248,7 @@ class Model:
     	for text in line.split('\n')[:-1]:
     		row = ""
     		for word in text.split():
-    			row = "{0}{1:12}".format(row, word)
+    			row = "{0}{1:15}".format(row, word)
     		self.topLevel.reg_table.insert(END, row)
 
 

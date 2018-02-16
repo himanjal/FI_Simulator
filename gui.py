@@ -41,11 +41,7 @@ def automateTest():
 	# onClick_connectQemu()
 	return
 
-# Insert print terminal now on GDB Output
-def printOutput(line):
-    output = " > [ " + line + " ]"
-    #print output
-    top.gdb_table.insert(END, output)
+
 
 def refreshRegisters():
     entity.sendCommand("info R")
@@ -55,18 +51,15 @@ def onClick_xmlFile():
     filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
     if ".xml" not in filenameXML:
         top.gdb_table.delete(0,END)	
-        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected. Please select an XML file."))
+        top.gdb_table.insert(END,entity.printOutput("ERROR: Not correct file type selected. Please select an XML file."))
         return
     entity.importXML(filenameXML)
-    printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
+    entity.printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
     top.xml_table.delete(0,END)	
     i = 1
     for item in entity.getFaults():
-        item_list = "{}".format(i).ljust(10) + \
-        "{}".format(item.bp).ljust(20) + \
-        "{}".format(item.lp).ljust(10) + \
-        "{}".format(item.regList).ljust(40) + \
-        "{}".format(item.mask).ljust(10)
+    	#item_list = "{0}{1}{2}".format(i, item.bp, item.masks)
+        item_list = "{0:<10}{1:<20}{2:<10}{3:<40}{4:<5}".format(i, item.bp, item.lp, item.regList, item.mask)
         top.xml_table.insert(END, item_list)
         i = i + 1
     top.xml_addBreak.configure(state='active')
@@ -77,19 +70,19 @@ def onClick_cFile():
     filenameC = askopenfilename(initialdir = "./documents", title="Select Source file")
     if not filenameC:
     	top.gdb_table.delete(0,END)	
-        top.gdb_table.insert(END,printOutput("ERROR: Not correct file type selected. Please select a Source file."))
+        top.gdb_table.insert(END,entity.printOutput("ERROR: Not correct file type selected. Please select a Source file."))
         return
     basename = os.path.basename(filenameC)
     entity.importCFile(filenameC)
     top.gdb_table.delete(0,END)	
-    printOutput("Connected < {0} > Successfully ... ".format(basename))
+    entity.printOutput("Connected < {0} > Successfully ... ".format(basename))
     top.source_table.delete(0,END)
     with open (filenameC, "r") as myfile:
     	strF = myfile.read()
         index = 0
     	for line in strF.split('\n'):
             index = index + 1
-            top.source_table.insert(END, "{0:15}{1}".format(str(index), line))
+            top.source_table.insert(END, "{0:10}{1}".format(str(index), line))
         myfile.close()
 	top.command_enter.configure(state='normal')
 	top.command_entry.configure(state='normal')
@@ -106,7 +99,7 @@ def onClick_cFile():
 #         index = int(w.curselection()[0])
 #         value = w.get(index)
 #         top.trig_fault_button.configure(state='normal')
-#         printOutput('You selected line %d: "%s"' % (index +1, value))
+#         entity.printOutput('You selected line %d: "%s"' % (index +1, value))
 #         entity.showAssemCode(index)
 #     except:
 #         return 
@@ -121,9 +114,14 @@ def onClick_sourcecode(event):
     value = w.get(index)
     top.source_feedback_button.configure(state='normal')
     top.source_feedback_entry.configure(state='normal')
+    #top.source_feedback_entry.bind('<Return>', getFeedback)
+    entity.selectFeedback(index+1)
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=1)
     top.trig_fault_progress.update()
-    #printOutput('You selected line %d: "%s"' % (index +1, value))
+    top.source_feedback_entry.delete(0,END)
+    top.source_feedback_entry.insert(0,index+1)
+    getFeedback()
+    #entity.printOutput('You selected line %d: "%s"' % (index +1, value))
     entity.showAssemCode(index)
     top.trig_fault_button.configure(state='normal')
 
@@ -163,16 +161,12 @@ def getFeedback():
     if lineNo.isdigit() and int(lineNo) <= top.source_table.size() and int(lineNo) >0:
         top.source_feedback_entry.config(background=green)
         top.source_feedback_entry.update()
-        printOutput("FeedBack selected at line " + lineNo)
+        entity.printOutput("Feedback selected at line " + lineNo)
         entity.selectFeedback(lineNo)
     else:
         top.source_feedback_entry.config(background=pink)
+        entity.printOutput("ERROR: Input Valid Line No. between 1 and " + str(top.source_table.size()))
         top.source_feedback_entry.update()
-
-
-
-
-
 
 def addBreakpoint():
 	print "add breakpoint"
@@ -305,7 +299,7 @@ class mainwindow:
         self.xml_addBreak.place(relx=0.65, rely=0.01, height=30, width=150)
 
         self.xml_attr = Label(self.xml_frame)
-        self.xml_attr.configure(text="Num   Breakpoint      Loop   Register                                 Mask", font=font_table_attr, anchor=NW)
+        self.xml_attr.configure(text="Num   Breakpoint      Loop   Register                                    Mask", font=font_table_attr, anchor=NW)
         self.xml_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)
 
         self.xml_table = Listbox(self.xml_frame)
