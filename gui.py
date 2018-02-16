@@ -295,16 +295,20 @@ class mainwindow:
         self.xml_addBreak.configure(text="Add Breakpoints", font=font_app_button, state='disabled', command=addBreakpoint)
         self.xml_addBreak.place(relx=0.65, rely=0.01, height=30, width=150)
 
-        header = ["#","Breakpoint","Lp","Register","Mask"]
+        header = ["#","Breakpoint","Loop","Register","Mask"]
        	self.xml_table = ttk.Treeview(self.xml_frame, selectmode="none",columns=header, show="headings")
        	self.xml_table.place(relx=0.02, rely=0.0925, relheight=0.87, relwidth=0.945)
         self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
        	self.xml_table.configure(yscrollcommand=self.xml_table_scrollBar.set)
-       	
+       	self.xml_table.column('#1', width=10)
+        self.xml_table.column('#2', width=75)
+        self.xml_table.column('#3', width=75)
+        self.xml_table.column('#4', width=75)
+        self.xml_table.column('#5', width=75)
        	for col in header:
        		self.xml_table.heading(col, text=col.title())
-       		self.xml_table.column(col, width=5)
+       		
 
     def reg(self, top):
 
@@ -320,30 +324,19 @@ class mainwindow:
         self.ref_reg.configure(text="Refresh Registers", font=font_app_button, state='disabled', command=refreshRegisters)
         self.ref_reg.place(relx=0.55, rely=0.01, height=30, width=150)
 
-        # self.reg_attr = Label(self.reg_frame)
-        # self.reg_attr.configure(text="Name     Address      Value", font=font_table_attr, anchor=NW)
-        # self.reg_attr.place(relx=0.02, rely=0.085, relheight=0.1, relwidth=0.96)        
-
-        # self.reg_table = Listbox(self.reg_frame)
-        # self.reg_table.configure(relief=RIDGE, font=font_table_list)
-        # self.reg_table.place(relx=0.02, rely=0.125, relheight=0.85, relwidth=0.96)
-        # self.reg_table.insert(END,"Connect to Server to view Registers")
-        # self.reg_table_scrollBar = ttk.Scrollbar(self.reg_table, orient="vertical")
-        # self.reg_table_scrollBar.config(command=self.reg_table.yview)
-        # self.reg_table_scrollBar.pack(side="right", fill="y")
-        # self.reg_table.config(yscrollcommand=self.reg_table_scrollBar.set)
-        # self.reg_table.bind("<MouseWheel>", mouseWheelEvent)
-
         header = ["Name","Address","Value"]
-       	self.reg_table = ttk.Treeview(self.reg_frame, selectmode="none",columns=header, show="headings")
+       	self.reg_table = ttk.Treeview(self.reg_frame, columns=header, show="headings")
        	self.reg_table.place(relx=0.02, rely=0.0925, relheight=0.87, relwidth=0.945)
         self.reg_table_scrollBar = ttk.Scrollbar(self.reg_table, orient="vertical", command=self.reg_table.yview)
         self.reg_table_scrollBar.pack(side="right", fill="y")
        	self.reg_table.configure(yscrollcommand=self.reg_table_scrollBar.set)
-       	
+        self.reg_table.column('#1', width=10)
+        self.reg_table.column('#2', width=100)
+        self.reg_table.column('#3', width=100)
        	for col in header:
        		self.reg_table.heading(col, text=col.title())
-       		self.reg_table.column(col, width=5)
+       	
+
 
     def gdb(self, top):
 

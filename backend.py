@@ -251,18 +251,15 @@ class Model:
 
 
     def readReg(self):
-        self.topLevel.reg_table.delete(0,END)
-    	line = self.read()
-    	for text in line.split('\n')[:-1]:
-    		row = ""
-    		for word in text.split():
-    			row = "{0}{1:15}".format(row, word)
-    		self.topLevel.reg_table.insert(END, row)
+        self.topLevel.reg_table.delete(*self.topLevel.reg_table.get_children())
+        line = self.read()
+        for text in line.split('\n')[:-1]:
+            row = ""
+            for word in text.split():
+                row = "{0}{1:15}".format(row, word)
+            self.topLevel.reg_table.insert('', END, values=row)
 
-
-
-
-
+    
     def sendCommand(self, line):
     	self.pluginProcess.stdin.write(line + "\n")
 
