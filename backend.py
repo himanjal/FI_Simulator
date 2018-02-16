@@ -33,7 +33,7 @@ class Model:
     #machineCode =[]
     pointer = 0
     #machineIndex = 0
-    regList = ['r0', 'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12', 'sp', 'lr', 'pc', 'cpsr']
+    regList = ['r0', 'r1', 'r3']#, 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12']#, 'sp', 'lr', 'pc', 'cpsr']
 
     def __init__(self, top):
         self.topLevel = top
@@ -50,6 +50,9 @@ class Model:
         self.topLevel.gdb_table.see("end")
 
     def selectFeedback(self, lineNo):
+        
+        #print "Selecting FeedBack"
+
         if self.feedbackLine is None:
             self.feedbackLine = lineNo
             self.topLevel.source_table.itemconfig(int(lineNo) - 1,{'bg':'#98FB98'})
@@ -59,8 +62,7 @@ class Model:
             self.feedbackLine = lineNo
 
         self.topLevel.source_table.update()
-
-
+         
     def populateFaults(self):
         self.faults = []
         for item in self.xmlFile.xml.action:
@@ -160,6 +162,9 @@ class Model:
         #Update REG Values
         self.updateRegs()
 
+        self.sendCommand("info R")
+
+        return
         #Continue for feedback 
         self.sendCommand("continue")
 
@@ -171,10 +176,8 @@ class Model:
             self.pluginProcess.stdin.write("info R " + reg + "\n")
             val = self.read()
             regVal = val.split()[2]
-            if regVal[0:2] == "0x":
-                mask(int(regVal,16))
-            else:
-                mask(int(regVal))
+            newVal = str(mask(regVal))
+            self.sendCommand("set $" + reg + "=" + newVal)
 
 
 

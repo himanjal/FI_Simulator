@@ -17,6 +17,7 @@ import inspect
 # ***** Variables *****
 entity = None
 top = None
+sourceSelectedLine = None
 
 lgrey = '#d9d9d9'
 black = '#000000'
@@ -97,7 +98,6 @@ def onClick_cFile():
     top.source_feedback_entry.configure(state='normal')
     top.gdb_connect.configure(state='normal')
     top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
-    #top.machine_table.bind("<<ListboxSelect>>", onClick_machinecode)
     connectGDB()
 
 def connectGDB():
@@ -105,18 +105,6 @@ def connectGDB():
     entity.printOutput("Connected to GDB Server")
     refreshRegisters()
 
-# def onClick_machinecode(event):
-#     try:
-#         w = top.machine_table
-#         index = int(w.curselection()[0])
-#         value = w.get(index)
-#         top.trig_fault_button.configure(state='normal')
-#         entity.printOutput('You selected line %d: "%s"' % (index +1, value))
-#         entity.showAssemCode(index)
-#     except:
-#         return 
-    
-    #top.trig_fault.configure(state='normal')
 
 def onClick_registers(event):
     w = top.source_table
@@ -129,20 +117,33 @@ def onClick_registers(event):
     top.source_feedback_entry.configure(state='normal')
 
 def onClick_sourcecode(event):
+    global sourceSelectedLine
     w = top.source_table
     if not  w.curselection():
         return
     index = int(w.curselection()[0])
     value = w.get(index)
-    #top.source_feedback_entry.bind('<Return>', getFeedback)
-    #entity.selectFeedback(index+1)
-    top.source_feedback_entry.config(background=green)
+    '''
+    if not(sourceSelectedLine is None) and sourceSelectedLine :
+        top.source_table.itemconfig(sourceSelectedLine,{'bg':'white'})
+
+
+    sourceSelectedLine = index
+    top.source_table.itemconfig(index, {'bg':lgrey})    
+    
+    '''
+
+    #CIRCLE
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=1)
     top.trig_fault_progress.update()
+
+
+    #entry text
+    top.source_feedback_entry.config(background=green)
     top.source_feedback_entry.delete(0,END)
     top.source_feedback_entry.insert(0,index+1)
-    #getFeedback()
-    #entity.printOutput('You selected line %d: "%s"' % (index +1, value))
+
+
     entity.showAssemCode(index)
     top.trig_fault_button.configure(state='normal')
 
@@ -175,8 +176,8 @@ def triggerFault():
 
 def getFeedback():
 	#dialog box of source code to select line
+
     lineNo = top.source_feedback_entry.get()
-    print top.source_table.size()
     if lineNo.isdigit() and int(lineNo) <= top.source_table.size() and int(lineNo) >0:
         top.source_feedback_entry.config(background=green)
         top.source_feedback_entry.update()
@@ -195,12 +196,13 @@ def addBreakpoint():
 # When Creating Application
 def create_mainwindow():
     '''Starting point when module is the main routine.'''
-    global val, w, root, top, entity
+    global val, w, root, top, entity, sourceSelectedLine
     root = Tk()
     top = mainwindow(root)
     entity = initModel(top)
     automateTest()
     root.mainloop()
+    sourceSelectedLine = None
 
 def handle_click(event):
     if top.xml_table.identify_region(event.x, event.y) == "separator":
