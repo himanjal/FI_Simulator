@@ -42,6 +42,9 @@ def automateTest():
 	return
 
 def refreshRegisters():
+    reg = top.reg_entry1.get()
+    val = top.reg_entry2.get()
+    entity.sendCommand("set $" + reg + "=" + val)
     entity.sendCommand("info R")
 
 # Function when clicking on the "Open XML File" Button
@@ -83,10 +86,12 @@ def onClick_cFile():
         myfile.close()
 	top.command_enter.configure(state='normal')
 	top.command_entry.configure(state='normal')
-	top.ref_reg.configure(state='normal')
-	top.source_feedback_button.configure(state='normal')
-	top.source_feedback_entry.configure(state='normal')
-	top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
+	top.reg_refresh.configure(state='normal')
+    top.reg_entry1.configure(state='normal')
+    top.reg_entry2.configure(state='normal')
+    top.source_feedback_button.configure(state='normal')
+    top.source_feedback_entry.configure(state='normal')
+    top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
     #top.machine_table.bind("<<ListboxSelect>>", onClick_machinecode)
     entity.connect()
 
@@ -179,6 +184,12 @@ def create_mainwindow():
     entity = initModel(top)
     automateTest()
     root.mainloop()
+
+def handle_click(event):
+    if top.xml_table.identify_region(event.x, event.y) == "separator":
+        return "break"   
+    if top.reg_table.identify_region(event.x, event.y) == "separator":
+        return "break"  
 
 # When ExitinFeedbackg Application
 def destroy_mainwindow():
@@ -279,7 +290,7 @@ class mainwindow:
         self.source_table_scrollBar.pack(side="right", fill="y")
         self.source_table.config(yscrollcommand=self.source_table_scrollBar.set)
         self.source_table.bind("<MouseWheel>", mouseWheelEvent)
-
+    
 
     def xml(self, top):
 
@@ -301,6 +312,7 @@ class mainwindow:
         self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
        	self.xml_table.configure(yscrollcommand=self.xml_table_scrollBar.set)
+        self.xml_table.bind('<Button-1>', handle_click)
        	self.xml_table.column('#1', width=10)
         self.xml_table.column('#2', width=75)
         self.xml_table.column('#3', width=75)
@@ -308,7 +320,7 @@ class mainwindow:
         self.xml_table.column('#5', width=75)
        	for col in header:
        		self.xml_table.heading(col, text=col.title())
-       		
+		
 
     def reg(self, top):
 
@@ -320,9 +332,21 @@ class mainwindow:
         self.reg_title.configure(text="Register Table", font=font_table_title, anchor=NW)
         self.reg_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.5)
 
-        self.ref_reg = Button(self.reg_frame)
-        self.ref_reg.configure(text="Refresh Registers", font=font_app_button, state='disabled', command=refreshRegisters)
-        self.ref_reg.place(relx=0.55, rely=0.01, height=30, width=150)
+        self.reg_label = Label(self.reg_frame)
+        self.reg_label.configure(text="set       to", font=font_app_button)
+        self.reg_label.place(relx=0.4, rely=0.01, height=30, width=100)
+
+        self.reg_entry1 = Entry(self.reg_frame)
+        self.reg_entry1.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
+        self.reg_entry1.place(relx=0.52, rely=0.01, height=30, width=25)
+
+        self.reg_entry2 = Entry(self.reg_frame)
+        self.reg_entry2.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
+        self.reg_entry2.place(relx=0.65, rely=0.01, height=30, width=30)
+
+        self.reg_refresh = Button(self.reg_frame)
+        self.reg_refresh.configure(text="Refresh", font=font_app_button, state='disabled', command=refreshRegisters)
+        self.reg_refresh.place(relx=0.75, rely=0.01, height=30, width=75)
 
         header = ["Name","Address","Value"]
        	self.reg_table = ttk.Treeview(self.reg_frame, columns=header, show="headings")
@@ -330,6 +354,7 @@ class mainwindow:
         self.reg_table_scrollBar = ttk.Scrollbar(self.reg_table, orient="vertical", command=self.reg_table.yview)
         self.reg_table_scrollBar.pack(side="right", fill="y")
        	self.reg_table.configure(yscrollcommand=self.reg_table_scrollBar.set)
+        self.reg_table.bind('<Button-1>', handle_click)
         self.reg_table.column('#1', width=10)
         self.reg_table.column('#2', width=100)
         self.reg_table.column('#3', width=100)
