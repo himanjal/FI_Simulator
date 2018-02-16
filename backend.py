@@ -4,6 +4,9 @@ import tempfile
 import time
 import untangle
 import re
+import string
+from mask import mask
+
 
 
 from Tkinter import *
@@ -166,7 +169,12 @@ class Model:
     def updateRegs(self):
         for reg in self.regList:
             self.pluginProcess.stdin.write("info R " + reg + "\n")
-
+            val = self.read()
+            regVal = val.split()[2]
+            if regVal[0:2] == "0x":
+                mask(int(regVal,16))
+            else:
+                mask(int(regVal))
 
 
 
