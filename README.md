@@ -47,6 +47,12 @@ $ python gui.py
 
 ## History v1.x
 
+### Version 1.5
+* Update Registers
+* Feedback
+* mask WORK ON
+* listbox columns
+
 ### Version 1.4
 * Highlight source code and mirror on machine code
 * Trigger Fault goes through lines (TODO)
