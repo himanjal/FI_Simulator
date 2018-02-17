@@ -18,6 +18,7 @@ import inspect
 entity = None
 top = None
 sourceSelectedLine = None
+selectReg = "None"
 
 lgrey = '#d9d9d9'
 black = '#000000'
@@ -41,14 +42,6 @@ def automateTest():
 	# onClick_cFile()
 	# onClick_connectQemu()
 	return
-
-def refreshRegisters():
-    entity.sendCommand("info R")
-
-def setRegisters():
-    reg = top.reg_entry1.get()
-    val = top.reg_entry2.get()
-    entity.sendCommand("set $" + reg + "=" + val)
 
 # Function when clicking on the "Open XML File" Button
 def onClick_xmlFile():
@@ -90,14 +83,15 @@ def onClick_cFile():
 	top.command_enter.configure(state='normal')
 	top.command_entry.configure(state='normal')
 	top.reg_refresh.configure(state='normal')
-    top.reg_entry1.configure(state='normal')
-    top.reg_entry2.configure(state='normal')
+    # top.reg_entry1.configure(state='normal')
+    # top.reg_entry2.configure(state='normal')
     top.source_feedback_button.configure(state='normal')
     top.source_feedback_entry.configure(state='normal')
     top.source_feedback_button.configure(state='normal')
     top.source_feedback_entry.configure(state='normal')
     top.gdb_connect.configure(state='normal')
     top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
+    top.reg_table.bind("<<TreeviewSelect>>", onClick_registers)
     connectGDB()
 
 def connectGDB():
@@ -105,16 +99,25 @@ def connectGDB():
     entity.printOutput("Connected to GDB Server")
     refreshRegisters()
 
+def refreshRegisters():
+    entity.sendCommand("info R")
+
+def updateRegisters():
+    reg = selectReg
+    w = top.reg_entry
+    val = w.get()
+    w.delete(0,END)
+    entity.sendCommand("set $" + reg + "=" + val)
+    refreshRegisters()
 
 def onClick_registers(event):
-    w = top.source_table
-    if not  w.curselection():
-        return
-    index = int(w.curselection()[0])
-    value = w.get(index)
-    print value
-    top.source_feedback_button.configure(state='normal')
-    top.source_feedback_entry.configure(state='normal')
+    global selectReg
+    w = top.reg_table
+    sel = w.selection()
+    selectReg = w.item(sel)['values'][0]
+    top.reg_label.configure(text="Register: " + selectReg + "  set value: ")
+    top.reg_update.configure(state='normal')
+    top.reg_entry.configure(state='normal')
 
 def onClick_sourcecode(event):
     global sourceSelectedLine
@@ -123,6 +126,7 @@ def onClick_sourcecode(event):
         return
     index = int(w.curselection()[0])
     value = w.get(index)
+    #top.source_feedback_entry.insert(0,index+1)
     '''
     if not(sourceSelectedLine is None) and sourceSelectedLine :
         top.source_table.itemconfig(sourceSelectedLine,{'bg':'white'})
@@ -261,7 +265,7 @@ class mainwindow:
 
         self.trig_fault_button = Button(self.machine_frame)
         self.trig_fault_button.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
-        self.trig_fault_button.place(relx=0.75, rely=0.01, height=30, width=150)
+        self.trig_fault_button.place(relx=0.75, rely=0.01, height=30, width=175)
 
         self.trig_fault_progress = Canvas(self.machine_frame)
         self.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=2)
@@ -293,7 +297,7 @@ class mainwindow:
 
         self.source_feedback_entry = Entry(self.source_frame)
         self.source_feedback_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
-        self.source_feedback_entry.bind('<Return>', getFeedback)
+        #self.source_feedback_entry.bind('<Return>', getFeedback)
         self.source_feedback_entry.place(relx=0.66, rely=0.01, height=30, width=60)
         
         self.source_feedback_button = Button(self.source_frame)
@@ -331,7 +335,7 @@ class mainwindow:
         self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
        	self.xml_table.configure(yscrollcommand=self.xml_table_scrollBar.set)
-        self.xml_table.bind('<Button-1>', handle_click)
+        #self.xml_table.bind('<Button-1>', handle_click)
        	self.xml_table.column('#1', width=10)
         self.xml_table.column('#2', width=75)
         self.xml_table.column('#3', width=75)
@@ -351,35 +355,35 @@ class mainwindow:
         self.reg_title.configure(text="Register Table", font=font_table_title, anchor=NW)
         self.reg_title.place(relx=0.02, rely=0.02, relheight=0.2, relwidth=0.5)
 
-        self.reg_label = Label(self.reg_frame)
-        self.reg_label.configure(text="set       to", font=font_app_button)
-        self.reg_label.place(relx=0.4, rely=0.01, height=30, width=100)
-
-        self.reg_entry1 = Entry(self.reg_frame)
-        self.reg_entry1.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
-        self.reg_entry1.place(relx=0.52, rely=0.01, height=30, width=25)
-
-        self.reg_entry2 = Entry(self.reg_frame)
-        self.reg_entry2.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
-        self.reg_entry2.place(relx=0.65, rely=0.01, height=30, width=30)
-
         self.reg_refresh = Button(self.reg_frame)
         self.reg_refresh.configure(text="Refresh", font=font_app_button, state='disabled', command=refreshRegisters)
         self.reg_refresh.place(relx=0.75, rely=0.01, height=30, width=75)
 
         header = ["Name","Address","Value"]
        	self.reg_table = ttk.Treeview(self.reg_frame, columns=header, show="headings")
-       	self.reg_table.place(relx=0.02, rely=0.0925, relheight=0.87, relwidth=0.945)
+       	self.reg_table.place(relx=0.02, rely=0.0925, relheight=0.79, relwidth=0.945)
         self.reg_table_scrollBar = ttk.Scrollbar(self.reg_table, orient="vertical", command=self.reg_table.yview)
         self.reg_table_scrollBar.pack(side="right", fill="y")
        	self.reg_table.configure(yscrollcommand=self.reg_table_scrollBar.set)
-        self.reg_table.bind('<Button-1>', handle_click)
+        #self.reg_table.bind('<Button-1>', handle_click)
         self.reg_table.column('#1', width=10)
         self.reg_table.column('#2', width=100)
         self.reg_table.column('#3', width=100)
        	for col in header:
        		self.reg_table.heading(col, text=col.title())
        	
+        self.reg_label = Label(self.reg_frame)
+        self.reg_label.configure(text="Select a Register:", font=font_app_button, anchor=W)
+        self.reg_label.place(relx=0.02, rely=0.89, relheight=0.1, width=150)
+        
+        self.reg_entry = Entry(self.reg_frame)
+        self.reg_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
+        self.reg_entry.place(relx=0.5, rely=0.9, relheight=0.075, width=75)
+        self.reg_entry.bind('<Return>', updateRegisters)
+
+        self.reg_update = Button(self.reg_frame)
+        self.reg_update.configure(text="Update", font=font_app_button, state='disabled', command=updateRegisters)
+        self.reg_update.place(relx=0.75, rely=0.9, height=30, width=75)
 
 
     def gdb(self, top):
