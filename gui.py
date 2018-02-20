@@ -197,12 +197,12 @@ def clearGDB():
 # Function when clicking on the "Enter" Key for the Command Line
 def enterKey(event):
     entity.sendCommand(event.widget.get())
-    top.widget.delete(0,END)
+    top.gdb_entry.delete(0,END)
 
 # Function when clicking on the "Enter" Button for the Command Line
 def onClick_enter():
-    entity.sendCommand(top.command_entry.get())
-    top.widget.delete(0,END)
+    entity.sendCommand(top.gdb_entry.get())
+    top.gdb_entry.delete(0,END)
 
 
 ### GUI Core ###
