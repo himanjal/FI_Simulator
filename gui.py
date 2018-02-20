@@ -40,6 +40,19 @@ font_command_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman
 
 # ***** Functions *****
 
+def normalizeButtons():
+    top.reg_refresh.configure(state='normal')
+    top.source_feedback_button.configure(state='normal')
+    top.source_feedback_entry.configure(state='normal')
+    top.source_feedback_button.configure(state='normal')
+    top.source_feedback_entry.configure(state='normal')
+    top.gdb_connect.configure(state='normal')
+    top.gdb_clear.configure(state='normal')
+    top.gdb_enter.configure(state='normal')
+    top.gdb_entry.configure(state='normal')
+    top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
+    top.reg_table.bind("<<TreeviewSelect>>", onClick_registers)
+
 ### Machine Code Functions ###
 
 # Trigger Fault in Machine Code
@@ -102,7 +115,7 @@ def onClick_sourcecode(event):
     top.trig_fault_button.configure(state='normal')
 
 # Open C File
-def onClick_cFile():
+def open_cfile():
     filenameC = askopenfilename(initialdir = "./documents", title="Select Source file")
     if not filenameC:
         top.gdb_table.delete(0,END) 
@@ -120,24 +133,14 @@ def onClick_cFile():
             index = index + 1
             top.source_table.insert(END, "{0:10}{1}".format(str(index), line))
         myfile.close()
-    top.reg_refresh.configure(state='normal')
-    top.source_feedback_button.configure(state='normal')
-    top.source_feedback_entry.configure(state='normal')
-    top.source_feedback_button.configure(state='normal')
-    top.source_feedback_entry.configure(state='normal')
-    top.gdb_connect.configure(state='normal')
-    top.gdb_clear.configure(state='normal')
-    top.gdb_enter.configure(state='normal')
-    top.gdb_entry.configure(state='normal')
-    top.source_table.bind("<<ListboxSelect>>", onClick_sourcecode)
-    top.reg_table.bind("<<TreeviewSelect>>", onClick_registers)
+    normalizeButtons()
     connectGDB()
 
 ### XML Table Functions ###
 
 # Add breakpoint to the registers
 def addBreakpoint():
-	print "add breakpoint"
+	entity.printOutput("Breakpoints Added Successfully")
 
 ### Register Table Functions ###
 
@@ -154,6 +157,9 @@ def updateRegisters():
     entity.sendCommand("set $" + reg + "=" + val)
     refreshRegisters()
 
+def enterkeyRegisters(event):
+    updateRegisters()
+
 # When Clicking on Registers
 def onClick_registers(event):
     global selectReg
@@ -165,7 +171,7 @@ def onClick_registers(event):
     top.reg_entry.configure(state='normal')
 
 # Open XML Function
-def onClick_xmlFile():
+def open_xmlfile():
     filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
     if ".xml" not in filenameXML:
         top.gdb_table.delete(0,END) 
@@ -194,16 +200,14 @@ def clearGDB():
     top.gdb_table.delete(0,END) 
     entity.printOutput("Clearing Successfully")
 
-# Function when clicking on the "Enter" Key for the Command Line
-def enterKey(event):
-    entity.sendCommand(event.widget.get())
-    top.gdb_entry.delete(0,END)
-
 # Function when clicking on the "Enter" Button for the Command Line
-def onClick_enter():
+def commandGDB():
     entity.sendCommand(top.gdb_entry.get())
     top.gdb_entry.delete(0,END)
 
+# Function when clicking on the "Enter" Key for the Command Line
+def enterkeyGDB(event):
+    commandGDB()
 
 ### GUI Core ###
 
@@ -391,7 +395,7 @@ class mainwindow:
         self.reg_entry = Entry(self.reg_frame)
         self.reg_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
         self.reg_entry.place(relx=0.75, rely=0.9125, relheight=0.075, width=75, anchor=NE)
-        self.reg_entry.bind('<Return>', updateRegisters)
+        self.reg_entry.bind('<Return>', enterkeyRegisters)
 
         self.reg_update = Button(self.reg_frame)
         self.reg_update.configure(text="Update", font=font_app_button, state='disabled', command=updateRegisters)
@@ -432,17 +436,17 @@ class mainwindow:
 
         self.gdb_entry = Entry(self.gdb_frame)
         self.gdb_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
-        self.gdb_entry.bind('<Return>', enterKey)
+        self.gdb_entry.bind('<Return>', enterkeyGDB)
         self.gdb_entry.place(relx=0.075, rely=0.94, relheight=0.05, relwidth=0.8)
 
         self.gdb_enter = Button(self.gdb_frame)
-        self.gdb_enter.configure(text="Enter", font=font_app_button, state="disabled", command=onClick_enter)
+        self.gdb_enter.configure(text="Enter", font=font_app_button, state="disabled", command=commandGDB)
         self.gdb_enter.place(relx=0.99, rely=0.935, height=buttonHeight, width=buttonWidth/2, anchor=NE)
 
     def menu(self, top):
     	self.menuBar = Menu(top)
-    	self.menuBar.add_command(label="Open Source File",command=onClick_cFile)
-    	self.menuBar.add_command(label="Open XML File",command=onClick_xmlFile)
+    	self.menuBar.add_command(label="Open Source File",command=open_cfile)
+    	self.menuBar.add_command(label="Open XML File",command=open_xmlfile)
     	self.menuBar.add_command(label="Exit Application",command=top.quit)
     	top.config(menu=self.menuBar)
 
