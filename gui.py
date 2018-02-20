@@ -15,10 +15,11 @@ import os
 import inspect
 
 # ***** Variables *****
+
 entity = None
 top = None
 sourceSelectedLine = None
-selectReg = "None"
+selectReg = None
 
 lgrey = '#d9d9d9'
 black = '#000000'
@@ -56,14 +57,11 @@ def normalizeButtons():
 ### Machine Code Functions ###
 
 # Trigger Fault in Machine Code
+
 def triggerFault():
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=yellow,width=1)
     top.trig_fault_button.configure(state='disabled')
-
     entity.triggerFault()
-
-    #when trigger ends
-    #top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=green,width=1)
     top.trig_fault_progress.update()
     top.trig_fault_button.configure(state='normal')
 
@@ -76,6 +74,7 @@ def getFeedback():
         top.source_feedback_entry.config(background=green)
         top.source_feedback_entry.update()
         entity.printOutput("Feedback selected at line " + lineNo)
+        top.trig_fault_button.configure(state='normal')
         entity.selectFeedback(lineNo)
     else:
         top.source_feedback_entry.config(background=pink)
@@ -90,29 +89,12 @@ def onClick_sourcecode(event):
         return
     index = int(w.curselection()[0])
     value = w.get(index)
-    #top.source_feedback_entry.insert(0,index+1)
-    '''
-    if not(sourceSelectedLine is None) and sourceSelectedLine :
-        top.source_table.itemconfig(sourceSelectedLine,{'bg':'white'})
-
-
-    sourceSelectedLine = index
-    top.source_table.itemconfig(index, {'bg':lgrey})    
-    
-    '''
-
-    #CIRCLE
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=1)
     top.trig_fault_progress.update()
-
-    #entry text
     top.source_feedback_entry.config(background=green)
     top.source_feedback_entry.delete(0,END)
     top.source_feedback_entry.insert(0,index+1)
-
-
     entity.showAssemCode(index)
-    top.trig_fault_button.configure(state='normal')
 
 # Open C File
 def open_cfile():
@@ -170,7 +152,7 @@ def onClick_registers(event):
     top.reg_update.configure(state='normal')
     top.reg_entry.configure(state='normal')
 
-# Open XML Function
+# Open XML File
 def open_xmlfile():
     filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
     if ".xml" not in filenameXML:
@@ -254,7 +236,6 @@ class mainwindow:
         self.source(top)
         self.reg(top)
         self.gdb(top)
-        #self.command(top)
 
     # Title Frame
     def title(self, top):
@@ -449,8 +430,5 @@ class mainwindow:
     	self.menuBar.add_command(label="Open XML File",command=open_xmlfile)
     	self.menuBar.add_command(label="Exit Application",command=top.quit)
     	top.config(menu=self.menuBar)
-
-if __name__ == '__main__':
-    create_mainwindow()
 
 # ***** EOF *****
