@@ -34,7 +34,7 @@ class Model:
     #machineCode =[]
     pointer = 0
     #machineIndex = 0
-    regList = ['r0', 'r1', 'r3', 'pc']#, 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12']#, 'sp', 'lr', 'pc', 'cpsr']
+    regList = ['r0', 'r1', 'r3']#, 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12']#, 'sp', 'lr', 'pc', 'cpsr']
 
     def __init__(self, top):
         self.topLevel = top
@@ -45,7 +45,8 @@ class Model:
         #print line
         time.sleep(0.1)
         for line in lines.split('\n'):
-            if line == "(gdb) ": return
+            if line == "(gdb) ": continue
+            if len(line) < 1: continue
             line = " > [" + line + "]"
             self.topLevel.gdb_table.insert(END, line)
             self.topLevel.gdb_table.update()
@@ -147,7 +148,7 @@ class Model:
     def triggerFault(self):
 
         self.connect()
-        line = self.topLevel.machine_table.get(self.topLevel.machine_table.curselection())
+        line = self.topLevel.machine_table.get(self.topLevel.machine_table.curselection()[0])
         bpAddr = line.split()[0]
 
 
@@ -164,12 +165,16 @@ class Model:
         #ADD FeedBack BreakPoint
         self.sendCommand("B " + self.feedbackLine)
 
-        #Update REG Values
-        self.updateRegs()
+        print self.topLevel.machine_table.curselection()
 
-        self.sendCommand("info R")
+        for index in range(1,len(self.topLevel.machine_table.curselection())):
+            #Update REG Values
+            self.updateRegs()
 
-        self.readGDB()
+            self.sendCommand("info R")
+
+            self.readGDB()
+            self.sendCommand("si")
 
         self.checkFeedback()
         return
@@ -187,11 +192,11 @@ class Model:
         self.printOutput(response)
 
         if "Breakpoint 2" in response:
-            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill='#98FB98',width=1)
+            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=green,width=1)
             self.printOutput("SUCCESS Reached Feedback Line")
             return True
         else:
-            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill=pink,width=1)
+            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=pink,width=1)
             self.printOutput("FAILED to reach FeedBack")
             self.connect()
             return False

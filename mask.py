@@ -10,11 +10,11 @@ and returned to the backend.py to set new register value
 
 
 
-resultVal = None
+
 
 def mask(operation, registerValue, opValue = None):
 
-	global resultVal
+	
 	resultVal = None
 
 	flag = False
@@ -25,8 +25,8 @@ def mask(operation, registerValue, opValue = None):
 	else:
 		val = int(registerValue)
 
-	print "oldVal" , val
-	print operation, opValue
+	#print "oldVal" , val
+	#print operation, opValue
 	if operation == "flipAlt": 
 		resultVal = flipAlternateBit(val)
 	elif operation == "add": 
@@ -35,7 +35,7 @@ def mask(operation, registerValue, opValue = None):
 		resultVal = subVal(val,int(opValue))
 
 
-	print "newVal" , resultVal
+	#print "newVal" , resultVal
 	if flag:
 		return hex(resultVal)
 
