@@ -169,7 +169,7 @@ def open_xmlfile():
         trig_list = (i,item[0])
         top.xml_table.insert('', END, values=trig_list)
         for masks in item[1]:
-            mask_list = (" ", " ", masks.reg, masks.val, masks.op)
+            mask_list = (" ", " ", masks.reg, masks.op, masks.val)
             top.xml_table.insert('', END, values=mask_list)
         i = i + 1
 

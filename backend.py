@@ -78,8 +78,8 @@ class Model:
             for masks in item.trigger.mask:
                 newTrigger = trigger()
                 newTrigger.reg = masks.rg['register'] 
-                newTrigger.val = masks.mk['op']
-                newTrigger.op = masks.mk['val']
+                newTrigger.val = masks.mk['val']
+                newTrigger.op = masks.mk['op']
                 trig.append(newTrigger)
 
             self.faults.append((addr, trig))
@@ -261,7 +261,7 @@ class Model:
                 val = self.read()
                 regVal = val.split()[2]
 
-                newVal = str(mask(trigger.op, regVal))
+                newVal = str(mask(trigger.op, regVal, trigger.val))
                 self.sendCommand("set $" + reg + "=" + newVal)
 
 
