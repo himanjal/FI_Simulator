@@ -164,8 +164,11 @@ def open_xmlfile():
     top.xml_table.delete(*top.xml_table.get_children())
     i = 1   
     for item in entity.getFaults():
-        item_list = (i, item.bp, item.lp, item.regList, item.mask)
-        top.xml_table.insert('', END, values=item_list)
+        trig_list = (i,item[0])
+        top.xml_table.insert('', END, values=trig_list)
+        for masks in item[1]:
+            mask_list = (masks.reg, masks.val, masks.op)
+            top.xml_table.insert('', END, values=mask_list)
         i = i + 1
     top.xml_addBreak.configure(state='normal')
 

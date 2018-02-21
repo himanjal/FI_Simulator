@@ -12,12 +12,17 @@ from mask import mask
 from Tkinter import *
 
 
-class trigger:
+class trigger1:
     bp = ""
     lp =""
     regList = []
     mask = ""
 
+
+class trigger:
+    reg = ""
+    val = ""
+    op = ""
 
 
 class Model:
@@ -63,8 +68,25 @@ class Model:
             self.feedbackLine = lineNo
 
         self.topLevel.source_table.update()
-         
+             
     def populateFaults(self):
+        self.faults = []
+        for item in self.xmlFile.xml.fault:
+            addr = item.addr['breakpointAddress']
+            
+            trig = []
+            for masks in item.trigger.mask:
+                newTrigger = trigger()
+                newTrigger.reg = masks.rg['register'] 
+                newTrigger.val = masks.mk['op']
+                newTrigger.op = masks.mk['val']
+                trig.append(newTrigger)
+
+            self.faults.append((addr, trig))
+
+
+
+    def populateFaults1(self):
         self.faults = []
         for item in self.xmlFile.xml.action:
             newTrigger = trigger()
@@ -201,16 +223,54 @@ class Model:
             val = self.read()
             regVal = val.split()[2]
             #print reg , regVal ,
-            newVal = str(mask(regVal))
+            newVal = str(mask("flipAlt", regVal))
             self.sendCommand("set $" + reg + "=" + newVal)
 
 
 
     def addBreakpoints(self):
-        for trigger in self.faults:
-            bp = trigger[0]
+        for item in self.faults:
+            bp = item[0]
+
+            self.connect()
+
+            if bp[0:2] == "0x":
+                self.sendCommand("B *" + bp)
+            else: self.sendCommand("B " + bp)
+            
+            # Continue Code
+            self.sendCommand("continue")
 
             
+            #Del Current BP
+            self.sendCommand("del")
+
+            #ADD FeedBack BreakPoint
+            self.sendCommand("B " + self.feedbackLine)
+
+
+            for trigger in item[1]:
+                reg = trigger.reg
+
+                if trigger.op == "const":
+                    newVal = trigger.val
+                    self.sendCommand("set $" + reg + "=" + newVal)
+                    continue
+
+                self.pluginProcess.stdin.write("info R " + reg + "\n")
+                val = self.read()
+                regVal = val.split()[2]
+
+                newVal = str(mask(trigger.op, regVal))
+                self.sendCommand("set $" + reg + "=" + newVal)
+
+
+            self.sendCommand("info R")
+
+            self.readGDB()
+
+            self.checkFeedback()
+
 
 
 
