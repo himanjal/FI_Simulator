@@ -85,6 +85,9 @@ def getFeedback():
         entity.printOutput("ERROR: Input Valid Line No. between 1 and " + str(top.source_table.size()))
         top.source_feedback_entry.update()
 
+def enterkeyFeedback(event):
+    getFeedback()
+
 # Click on line of Source Code
 def onClick_sourcecode(event):
     global sourceSelectedLine
@@ -277,7 +280,7 @@ class mainwindow:
         self.trig_fault_progress.place(relx=0.7, rely=0.02, relheight=0.075, relwidth=0.05)
 
         self.machine_table = Listbox(self.machine_frame)
-        self.machine_table.configure(relief=RIDGE, font=font_table_list, selectmode='multiple')
+        self.machine_table.configure(relief=RIDGE, font=font_table_list, selectmode=EXTENDED)
         self.machine_table.place(relx=0.01, rely=0.09, relheight=0.89, relwidth=0.98)
         self.machine_table.insert(END,"Click on a Source Code line to view Machine Code")
         self.machine_table_scrollBar = ttk.Scrollbar(self.machine_table, orient="vertical")
@@ -303,7 +306,7 @@ class mainwindow:
 
         self.source_feedback_entry = Entry(self.source_frame)
         self.source_feedback_entry.configure(relief=RIDGE, font=font_table_list, background=white, state='disabled')
-        #self.source_feedback_entry.bind('<Return>', getFeedback)
+        self.source_feedback_entry.bind('<Return>', enterkeyFeedback)
         self.source_feedback_entry.place(relx=0.66, rely=0.01, height=30, width=60)
         
         self.source_feedback_button = Button(self.source_frame)
