@@ -33,21 +33,22 @@ class Model:
     #machineCode =[]
     pointer = 0
     #machineIndex = 0
-    regList = ['r0', 'r1', 'r3']#, 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12']#, 'sp', 'lr', 'pc', 'cpsr']
+    regList = ['r0', 'r1', 'r3', 'pc']#, 'r5', 'r6', 'r7', 'r8', 'r9', 'r11', 'r12']#, 'sp', 'lr', 'pc', 'cpsr']
 
     def __init__(self, top):
         self.topLevel = top
         self.tempf = tempfile.TemporaryFile()
 
 
-    def printOutput(self, line):
+    def printOutput(self, lines):
         #print line
         time.sleep(0.1)
-        if line == "(gdb) ": return
-        line = " > [" + line + "]"
-        self.topLevel.gdb_table.insert(END, line)
-        self.topLevel.gdb_table.update()
-        self.topLevel.gdb_table.see("end")
+        for line in lines.split('\n'):
+            if line == "(gdb) ": return
+            line = " > [" + line + "]"
+            self.topLevel.gdb_table.insert(END, line)
+            self.topLevel.gdb_table.update()
+            self.topLevel.gdb_table.see("end")
 
     def selectFeedback(self, lineNo):
         
@@ -141,6 +142,7 @@ class Model:
 
 
     def triggerFault(self):
+
         self.connect()
         line = self.topLevel.machine_table.get(self.topLevel.machine_table.curselection())
         bpAddr = line.split()[0]
@@ -164,9 +166,31 @@ class Model:
 
         self.sendCommand("info R")
 
+        self.readGDB()
+
+        self.checkFeedback()
         return
         #Continue for feedback 
         self.sendCommand("continue")
+
+
+
+
+    def checkFeedback(self):
+        #Continue for feedback 
+        self.pluginProcess.stdin.write("c\n")
+
+        response = self.read()
+        self.printOutput(response)
+
+        if "Breakpoint 2" in response:
+            self.printOutput("SUCCESS Reached Feedback Line")
+            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill='#98FB98',width=1)
+        else:
+            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill='red',width=1)
+            self.printOutput("FAILED to reach FeedBack")
+            self.connect()
+
 
 
 
@@ -176,46 +200,21 @@ class Model:
             self.pluginProcess.stdin.write("info R " + reg + "\n")
             val = self.read()
             regVal = val.split()[2]
+            #print reg , regVal ,
             newVal = str(mask(regVal))
             self.sendCommand("set $" + reg + "=" + newVal)
 
 
 
-    def triggerFault2(self):
-
-        index = self.machineIndex
-        length = len(self.machineCode) - 1
-        while True:
-            #self.topLevel.machine_table.itemconfig(i,{'bg':'white'})
-            #self.topLevel.machine_table.itemconfig(i+1,{'bg':'light grey'})
-            #self.topLevel.machine_table.update()
-            line = self.machineCode[self.machineIndex]
-            print line
-            reg = re.findall("r\d{1}",line)
-            if not reg:
-                print "no reg"
-            else:
-                for r in reg:
-                    print r ,
-                print ""
-                #self.sendCommand("i r " + r)
-
-            print "index = " + str(self.machineIndex) + "Length = " + str(len(self.machineCode)) 
-            if self.machineIndex == len(self.machineCode) - 1:
-                break
-
-            self.pluginProcess.stdin.write("si\n")
-            add = self.read()
-            self.printOutput(add)
-            address = add.split()[0] 
-            if address.startswith("0x"):
-                self.updateMachineCode(address)
-            time.sleep(2)
-
-
-
-
     def addBreakpoints(self):
+        for trigger in self.faults:
+            bp = trigger[0]
+
+            
+
+
+
+    def addBreakpoints1(self):
 
         bpNum = 1
         for trigger in self.faults:
