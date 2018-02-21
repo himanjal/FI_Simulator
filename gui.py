@@ -76,6 +76,7 @@ def getFeedback():
         entity.printOutput("Feedback selected at line " + lineNo)
         top.trig_fault_button.configure(state='normal')
         entity.selectFeedback(lineNo)
+        top.xml_addBreak.configure(state='normal')
     else:
         top.source_feedback_entry.config(background=pink)
         entity.printOutput("ERROR: Input Valid Line No. between 1 and " + str(top.source_table.size()))
@@ -171,7 +172,6 @@ def open_xmlfile():
             mask_list = (" ", " ", masks.reg, masks.val, masks.op)
             top.xml_table.insert('', END, values=mask_list)
         i = i + 1
-    top.xml_addBreak.configure(state='normal')
 
 ### GNU Debugger Functions ###
 
@@ -327,10 +327,10 @@ class mainwindow:
         self.xml_title.place(relx=0.01, rely=0.02, relheight=0.2, relwidth=0.2)
 
         self.xml_addBreak = Button(self.xml_frame)
-        self.xml_addBreak.configure(text="Add Breakpoints", font=font_app_button, state='disabled', command=addBreakpoint)
+        self.xml_addBreak.configure(text="Execute Breakpoints", font=font_app_button, state='disabled', command=addBreakpoint)
         self.xml_addBreak.place(relx=0.99, rely=0.01, height=buttonHeight, width=buttonWidth, anchor=NE)
 
-        header = ["#","Breakpoint","Loop","Register","Mask"]
+        header = ["#","Address","Register","Operation","Value"]
        	self.xml_table = ttk.Treeview(self.xml_frame,columns=header, show="headings")
        	self.xml_table.place(relx=0.01, rely=0.09, relheight=0.89, relwidth=0.98)
         self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
@@ -338,10 +338,10 @@ class mainwindow:
        	self.xml_table.configure(yscrollcommand=self.xml_table_scrollBar.set)
         #self.xml_table.bind('<Button-1>', handle_click)
        	self.xml_table.column('#1', width=10)
-        self.xml_table.column('#2', width=75)
+        self.xml_table.column('#2', width=100)
         self.xml_table.column('#3', width=75)
         self.xml_table.column('#4', width=75)
-        self.xml_table.column('#5', width=75)
+        self.xml_table.column('#5', width=100)
        	for col in header:
        		self.xml_table.heading(col, text=col.title())
 		
