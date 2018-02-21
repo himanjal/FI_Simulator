@@ -277,7 +277,7 @@ class mainwindow:
         self.trig_fault_progress.place(relx=0.7, rely=0.02, relheight=0.075, relwidth=0.05)
 
         self.machine_table = Listbox(self.machine_frame)
-        self.machine_table.configure(relief=RIDGE, font=font_table_list)
+        self.machine_table.configure(relief=RIDGE, font=font_table_list, selectmode='multiple')
         self.machine_table.place(relx=0.01, rely=0.09, relheight=0.89, relwidth=0.98)
         self.machine_table.insert(END,"Click on a Source Code line to view Machine Code")
         self.machine_table_scrollBar = ttk.Scrollbar(self.machine_table, orient="vertical")

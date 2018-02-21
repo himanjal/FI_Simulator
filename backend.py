@@ -191,7 +191,7 @@ class Model:
             self.printOutput("SUCCESS Reached Feedback Line")
             return True
         else:
-            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill='red',width=1)
+            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill=pink,width=1)
             self.printOutput("FAILED to reach FeedBack")
             self.connect()
             return False
