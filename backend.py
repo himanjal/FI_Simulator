@@ -214,6 +214,7 @@ class Model:
 
     def addBreakpoints(self):
         for item in self.faults:
+            self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=yellow,width=1)
             bp = item[0]
 
             self.connect()
@@ -256,10 +257,6 @@ class Model:
             flag=self.checkFeedback()
 
             self.sendCommand("info R")
-            # index =  self.faults.index(item) + 1
-            # iid = self.topLevel.xml_table.insert("", index+1)
-            # self.topLevel.xml_table.tag_configure('pass', background='green')
-            # self.topLevel.xml_table.tag_configure('fail', background='red')
             
             if flag:
             	self.topLevel.xml_table.tag_configure(item[0], background=green)

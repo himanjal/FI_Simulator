@@ -59,12 +59,15 @@ def normalizeButtons():
 
 # Trigger Fault in Machine Code
 
+def faultProgress(color):
+    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=color,width=1)
+
 def triggerFault():
-    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=yellow,width=1)
     top.trig_fault_button.configure(state='disabled')
     entity.triggerFault()
     top.trig_fault_progress.update()
-    top.trig_fault_button.configure(state='normal')
+    faultProgress(yellow)
+    #top.trig_fault_button.configure(state='normal')
 
 ### Source Code Functions ###
 
@@ -128,9 +131,35 @@ def open_cfile():
 ### XML Table Functions ###
 
 # Add breakpoint to the registers
-def addBreakpoint():
+def executeBreakpoint():
+    top.xml_addBreak.configure(state='disabled')
+    top.xml_table.tag_configure('', background=white)
     entity.addBreakpoints()
     entity.printOutput("Breakpoints Added Successfully")
+    top.xml_addBreak.configure(state='normal')
+
+# Open XML File
+def open_xmlfile():
+    global importXML
+    filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
+    if ".xml" not in filenameXML:
+        top.gdb_table.delete(0,END) 
+        top.gdb_table.insert(END,entity.printOutput("ERROR: Not correct file type selected. Please select an XML file."))
+        return
+    entity.importXML(filenameXML)
+    importXML = True
+    entity.printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
+    top.xml_table.delete(*top.xml_table.get_children())
+    if entity.feedbackLine is not None:
+        top.xml_addBreak.configure(state='normal')
+    i = 1   
+    for item in entity.getFaults():
+        trig_list = (i,item[0])
+        top.xml_table.insert('', END, values=trig_list, tags=(item[0],))
+        for masks in item[1]:
+            mask_list = (" ", " ", masks.reg, masks.op, masks.val)
+            top.xml_table.insert('', END, values=mask_list)
+        i = i + 1
 
 ### Register Table Functions ###
 
@@ -160,28 +189,7 @@ def onClick_registers(event):
     top.reg_update.configure(state='normal')
     top.reg_entry.configure(state='normal')
 
-# Open XML File
-def open_xmlfile():
-    global importXML
-    filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
-    if ".xml" not in filenameXML:
-        top.gdb_table.delete(0,END) 
-        top.gdb_table.insert(END,entity.printOutput("ERROR: Not correct file type selected. Please select an XML file."))
-        return
-    entity.importXML(filenameXML)
-    importXML = True
-    entity.printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
-    top.xml_table.delete(*top.xml_table.get_children())
-    if entity.feedbackLine is not None:
-        top.xml_addBreak.configure(state='normal')
-    i = 1   
-    for item in entity.getFaults():
-        trig_list = (i,item[0])
-        top.xml_table.insert('', END, values=trig_list, tags=(item[0],))
-        for masks in item[1]:
-            mask_list = (" ", " ", masks.reg, masks.op, masks.val)
-            top.xml_table.insert('', END, values=mask_list)
-        i = i + 1
+
 
 ### GNU Debugger Functions ###
 
@@ -337,7 +345,7 @@ class mainwindow:
         self.xml_title.place(relx=0.01, rely=0.02, relheight=0.2, relwidth=0.2)
 
         self.xml_addBreak = Button(self.xml_frame)
-        self.xml_addBreak.configure(text="Execute Breakpoints", font=font_app_button, state='disabled', command=addBreakpoint)
+        self.xml_addBreak.configure(text="Execute Breakpoints", font=font_app_button, state='disabled', command=executeBreakpoint)
         self.xml_addBreak.place(relx=0.99, rely=0.01, height=buttonHeight, width=buttonWidth, anchor=NE)
 
         header = ["#","Address","Register","Operation","Value"]
