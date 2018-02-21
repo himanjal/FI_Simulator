@@ -255,13 +255,13 @@ class Model:
             self.readGDB()
 
             flag=self.checkFeedback()
-
-            self.sendCommand("info R")
             
             if flag:
             	self.topLevel.xml_table.tag_configure(item[0], background=green)
             else:
             	self.topLevel.xml_table.tag_configure(item[0], background=pink)
+
+            self.sendCommand("info R")
 
     def readReg(self):
         self.topLevel.reg_table.delete(*self.topLevel.reg_table.get_children())

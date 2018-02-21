@@ -42,10 +42,19 @@ font_command_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman
 
 # ***** Functions *****
 
-def normalizeButtons():
+def statusButtons(status):
+    top.trig_fault_button.configure(state=status)
+    top.xml_addBreak.configure(state=status)
+    #top.reg_refresh.configure(state=status)
+    top.source_feedback_button.configure(state=status)
+    top.source_feedback_entry.configure(state=status)
+    top.gdb_connect.configure(state=status)
+    top.gdb_clear.configure(state=status)
+    top.gdb_enter.configure(state=status)
+    top.gdb_entry.configure(state=status)
+
+def initializeButtons():
     top.reg_refresh.configure(state='normal')
-    top.source_feedback_button.configure(state='normal')
-    top.source_feedback_entry.configure(state='normal')
     top.source_feedback_button.configure(state='normal')
     top.source_feedback_entry.configure(state='normal')
     top.gdb_connect.configure(state='normal')
@@ -63,11 +72,11 @@ def faultProgress(color):
     top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=color,width=1)
 
 def triggerFault():
-    top.trig_fault_button.configure(state='disabled')
+    statusButtons("disabled")
+    faultProgress(yellow)
     entity.triggerFault()
     top.trig_fault_progress.update()
-    faultProgress(yellow)
-    #top.trig_fault_button.configure(state='normal')
+    statusButtons("normal")
 
 ### Source Code Functions ###
 
@@ -93,6 +102,15 @@ def enterkeyFeedback(event):
 
 # Click on line of Source Code
 def onClick_sourcecode(event):
+
+
+
+
+
+
+
+
+
     global sourceSelectedLine
     w = top.source_table
     if not  w.curselection():
@@ -100,7 +118,7 @@ def onClick_sourcecode(event):
     index = int(w.curselection()[0])
     value = w.get(index)
     top.trig_fault_progress.update()
-    top.trig_fault_progress.delete(ALL)
+    faultProgress("black")
     top.source_feedback_entry.config(background=green)
     top.source_feedback_entry.delete(0,END)
     top.source_feedback_entry.insert(0,index+1)
@@ -125,18 +143,18 @@ def open_cfile():
             index = index + 1
             top.source_table.insert(END, "{0:10}{1}".format(str(index), line))
         myfile.close()
-    normalizeButtons()
+    initializeButtons()
     connectGDB()
 
 ### XML Table Functions ###
 
 # Add breakpoint to the registers
 def executeBreakpoint():
-    top.xml_addBreak.configure(state='disabled')
-    top.xml_table.tag_configure('', background=white)
+    statusButtons("disabled")
+    ttk.Style().configure('row', background=white, fieldbackground=white)
     entity.addBreakpoints()
     entity.printOutput("Breakpoints Added Successfully")
-    top.xml_addBreak.configure(state='normal')
+    statusButtons("normal")
 
 # Open XML File
 def open_xmlfile():
@@ -155,7 +173,7 @@ def open_xmlfile():
     i = 1   
     for item in entity.getFaults():
         trig_list = (i,item[0])
-        top.xml_table.insert('', END, values=trig_list, tags=(item[0],))
+        top.xml_table.insert('', END, values=trig_list, tags=(item[0],'row'))
         for masks in item[1]:
             mask_list = (" ", " ", masks.reg, masks.op, masks.val)
             top.xml_table.insert('', END, values=mask_list)
@@ -281,13 +299,44 @@ class mainwindow:
         self.machine_title.configure(text="Machine Code", font=font_table_title, anchor=NW)
         self.machine_title.place(relx=0.01, rely=0.02, relheight=0.2, relwidth=0.2)
 
+
+
+
+
+
+
+
+
+
+
+
+        self.machine_check = Menubutton(self.machine_frame, text="Registers", font=font_app_button, relief=RAISED)
+        self.machine_check.menu = Menu(self.machine_check, tearoff=0)
+        self.machine_check["menu"]=self.machine_check.menu
+
+        Item0 = IntVar()
+        Item1 = IntVar()
+        Item2 = IntVar()
+
+
+
+        self.machine_check.menu.add_checkbutton ( label="r0", variable=Item0)
+        self.machine_check.menu.add_checkbutton ( label="r1", variable=Item1)
+        self.machine_check.menu.add_checkbutton ( label="r2", variable=Item2)
+        self.machine_check.place(relx=0.75, rely=0.01, height=buttonHeight, width=buttonWidth/2, anchor=NE)
+
+
+
+
+
+
+
+
+
+
         self.trig_fault_button = Button(self.machine_frame)
         self.trig_fault_button.configure(text="Trigger Fault", font=font_app_button, state='disabled', command=triggerFault)
         self.trig_fault_button.place(relx=0.99, rely=0.01, height=buttonHeight, width=buttonWidth, anchor=NE)
-
-        self.trig_fault_progress = Canvas(self.machine_frame)
-      #  self.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=2)
-        self.trig_fault_progress.place(relx=0.7, rely=0.02, relheight=0.075, relwidth=0.05)
 
         self.machine_table = Listbox(self.machine_frame)
         self.machine_table.configure(relief=RIDGE, font=font_table_list, selectmode=EXTENDED)
@@ -414,6 +463,10 @@ class mainwindow:
         self.gdb_title = Label(self.gdb_frame)
         self.gdb_title.configure(text="GNU Debugger", font=font_table_title, anchor=NW)
         self.gdb_title.place(relx=0.01, rely=0.02, relheight=0.2, relwidth=0.2)
+
+        self.trig_fault_progress = Canvas(self.gdb_frame)
+        self.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=2)
+        self.trig_fault_progress.place(relx=0.2, rely=0.02, relheight=0.075, relwidth=0.05)
 
         self.gdb_clear = Button(self.gdb_frame)
         self.gdb_clear.configure(text="Clear GDB", font=font_app_button, state='disabled', command=clearGDB)
