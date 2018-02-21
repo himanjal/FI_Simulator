@@ -310,19 +310,9 @@ class mainwindow:
 
 
 
-        self.machine_check = Menubutton(self.machine_frame, text="Registers", font=font_app_button, relief=RAISED)
+        self.machine_check = Menubutton(self.machine_frame, text="Select Registers", font=font_app_button, relief=RAISED)
         self.machine_check.menu = Menu(self.machine_check, tearoff=0)
         self.machine_check["menu"]=self.machine_check.menu
-
-        Item0 = IntVar()
-        Item1 = IntVar()
-        Item2 = IntVar()
-
-
-
-        self.machine_check.menu.add_checkbutton ( label="r0", variable=Item0)
-        self.machine_check.menu.add_checkbutton ( label="r1", variable=Item1)
-        self.machine_check.menu.add_checkbutton ( label="r2", variable=Item2)
         self.machine_check.place(relx=0.75, rely=0.01, height=buttonHeight, width=buttonWidth/2, anchor=NE)
 
 
