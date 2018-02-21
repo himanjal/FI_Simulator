@@ -44,7 +44,7 @@ font_command_title = "-family {DejaVu Sans} -size 12 -weight normal -slant roman
 
 def statusButtons(status):
     top.trig_fault_button.configure(state=status)
-    top.xml_addBreak.configure(state=status)
+    #top.xml_addBreak.configure(state=status)
     #top.reg_refresh.configure(state=status)
     top.source_feedback_button.configure(state=status)
     top.source_feedback_entry.configure(state=status)
@@ -151,10 +151,12 @@ def open_cfile():
 # Add breakpoint to the registers
 def executeBreakpoint():
     statusButtons("disabled")
+    top.xml_addBreak.configure(state='disabled')
     ttk.Style().configure('row', background=white, fieldbackground=white)
     entity.addBreakpoints()
     entity.printOutput("Breakpoints Added Successfully")
     statusButtons("normal")
+    top.xml_addBreak.configure(state='normal')
 
 # Open XML File
 def open_xmlfile():
@@ -175,7 +177,7 @@ def open_xmlfile():
         trig_list = (i,item[0])
         top.xml_table.insert('', END, values=trig_list, tags=(item[0],'row'))
         for masks in item[1]:
-            mask_list = (" ", " ", masks.reg, masks.op, masks.val)
+            mask_list = ("- -", "- - - - - - - - - -", masks.reg, masks.op, masks.val)
             top.xml_table.insert('', END, values=mask_list)
         i = i + 1
 
@@ -247,6 +249,8 @@ def handle_click(event):
     if top.xml_table.identify_region(event.x, event.y) == "separator":
         return "break"   
     if top.reg_table.identify_region(event.x, event.y) == "separator":
+        return "break"
+    if top.gdb_table:
         return "break"  
 
 # Exiting Application
@@ -288,6 +292,9 @@ class mainwindow:
         self.title_label.configure(text="Fault Injection Simulator", font=font_app_title, anchor="center")
         self.title_label.place(relx=0, rely=0, relheight=1.00, relwidth=1.00)
 
+        # self.hover_icon = Label(self.title_frame, text="HOVER")
+        # self.hover_label = HoverInfo(self.title_frame, "author: Jon Metzger")
+
     # Machine Code Frame
     def machine(self, top):
 
@@ -313,7 +320,7 @@ class mainwindow:
         self.machine_check = Menubutton(self.machine_frame, text="Select Registers", font=font_app_button, relief=RAISED)
         self.machine_check.menu = Menu(self.machine_check, tearoff=0)
         self.machine_check["menu"]=self.machine_check.menu
-        self.machine_check.place(relx=0.75, rely=0.01, height=buttonHeight, width=buttonWidth/2, anchor=NE)
+        self.machine_check.place(relx=0.75, rely=0.01, height=buttonHeight, width=buttonWidth, anchor=NE)
 
 
 
@@ -388,7 +395,7 @@ class mainwindow:
         self.xml_addBreak.place(relx=0.99, rely=0.01, height=buttonHeight, width=buttonWidth, anchor=NE)
 
         header = ["#","Address","Register","Operation","Value"]
-       	self.xml_table = ttk.Treeview(self.xml_frame,columns=header, show="headings")
+       	self.xml_table = ttk.Treeview(self.xml_frame,columns=header, show="headings", selectmode='none')
        	self.xml_table.place(relx=0.01, rely=0.09, relheight=0.89, relwidth=0.98)
         self.xml_table_scrollBar = ttk.Scrollbar(self.xml_table, orient="vertical", command=self.xml_table.yview)
         self.xml_table_scrollBar.pack(side="right", fill="y")
@@ -467,13 +474,15 @@ class mainwindow:
         self.gdb_connect.place(relx=0.99, rely=0.01, height=buttonHeight, width=buttonWidth+50, anchor=NE)
 
         self.gdb_table = Listbox(self.gdb_frame)
-        self.gdb_table.configure(relief=RIDGE, font=font_table_list)
+        self.gdb_table.configure(relief=RIDGE, font=font_table_list, selectmode='none')
+        self.gdb_table.exportselection = False
         self.gdb_table.place(relx=0.01, rely=0.075, relheight=0.85, relwidth=0.98)
         self.gdb_table.insert(END,"Connect to Server to Debug")
         self.gdb_table_scrollBar = ttk.Scrollbar(self.gdb_table, orient="vertical")
         self.gdb_table_scrollBar.config(command=self.gdb_table.yview)
         self.gdb_table_scrollBar.pack(side="right", fill="y")
         self.gdb_table.config(yscrollcommand=self.gdb_table_scrollBar.set)
+        self.gdb_table.bind('<Button-1>', handle_click)
         self.gdb_table.bind("<MouseWheel>", mouseWheelEvent)
 
         self.gdb_label = Label(self.gdb_frame)

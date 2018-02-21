@@ -40,7 +40,6 @@ class Model:
         self.topLevel = top
         self.tempf = tempfile.TemporaryFile()
 
-
     def printOutput(self, lines):
         #print line
         time.sleep(0.1)
