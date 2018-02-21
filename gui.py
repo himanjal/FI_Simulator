@@ -20,6 +20,7 @@ entity = None
 top = None
 sourceSelectedLine = None
 selectReg = None
+importXML = False
 
 lgrey = '#d9d9d9'
 black = '#000000'
@@ -69,6 +70,7 @@ def triggerFault():
 
 # Update the Feedback in Source Code
 def getFeedback():
+    global importXML
     lineNo = top.source_feedback_entry.get()
     if lineNo.isdigit() and int(lineNo) <= top.source_table.size() and int(lineNo) >0:
         top.source_feedback_entry.config(background=green)
@@ -76,7 +78,8 @@ def getFeedback():
         entity.printOutput("Feedback selected at line " + lineNo)
         top.trig_fault_button.configure(state='normal')
         entity.selectFeedback(lineNo)
-        top.xml_addBreak.configure(state='normal')
+        if importXML is True:
+            top.xml_addBreak.configure(state='normal')
     else:
         top.source_feedback_entry.config(background=pink)
         entity.printOutput("ERROR: Input Valid Line No. between 1 and " + str(top.source_table.size()))
@@ -156,18 +159,20 @@ def onClick_registers(event):
 
 # Open XML File
 def open_xmlfile():
+    global importXML
     filenameXML = askopenfilename(initialdir = "./documents",title = "Select XML file",filetypes = (("xml files","*.xml"),("all files","*.*")))
     if ".xml" not in filenameXML:
         top.gdb_table.delete(0,END) 
         top.gdb_table.insert(END,entity.printOutput("ERROR: Not correct file type selected. Please select an XML file."))
         return
     entity.importXML(filenameXML)
+    importXML = True
     entity.printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
     top.xml_table.delete(*top.xml_table.get_children())
     i = 1   
     for item in entity.getFaults():
         trig_list = (i,item[0])
-        top.xml_table.insert('', END, values=trig_list)
+        top.xml_table.insert('', END, values=trig_list, tags=(item[0],))
         for masks in item[1]:
             mask_list = (" ", " ", masks.reg, masks.op, masks.val)
             top.xml_table.insert('', END, values=mask_list)
@@ -430,9 +435,15 @@ class mainwindow:
 
     def menu(self, top):
     	self.menuBar = Menu(top)
-    	self.menuBar.add_command(label="Open Source File",command=open_cfile)
-    	self.menuBar.add_command(label="Open XML File",command=open_xmlfile)
-    	self.menuBar.add_command(label="Exit Application",command=top.quit)
+        self.filemenu = Menu(self.menuBar)
+        self.menuBar.add_cascade(label="Open Files", menu=self.filemenu)
+    	self.filemenu.add_command(label="Source File",command=open_cfile)
+    	self.filemenu.add_command(label="XML File",command=open_xmlfile)
+    	self.menuBar.add_command(label="Exit",command=top.quit)
     	top.config(menu=self.menuBar)
+
+if __name__ == '__main__':
+    create_mainwindow()
+
 
 # ***** EOF *****

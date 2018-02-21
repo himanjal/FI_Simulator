@@ -6,18 +6,14 @@ import untangle
 import re
 import string
 from mask import mask
-
-
-
 from Tkinter import *
 
-
-class trigger1:
-    bp = ""
-    lp =""
-    regList = []
-    mask = ""
-
+lgrey = '#d9d9d9'
+black = '#000000'
+white = '#ffffff'
+green = '#98FB98'
+yellow = '#ffff00'
+pink ='#ffa797'
 
 class trigger:
     reg = ""
@@ -83,21 +79,6 @@ class Model:
                 trig.append(newTrigger)
 
             self.faults.append((addr, trig))
-
-
-
-    def populateFaults1(self):
-        self.faults = []
-        for item in self.xmlFile.xml.action:
-            newTrigger = trigger()
-            newTrigger.regList = []
-            for reg in item.rg['registerList'][1:-1].split(','):
-                newTrigger.regList.append(reg.split()[0])
-            newTrigger.bp = item.bp['breakpointAddress']
-            newTrigger.lp = item.lp['loopCounter']
-            newTrigger.mask = item.mk['mask']
-            self.faults.append(newTrigger)
-
 
     def connect(self):
         file = self.cFile
@@ -206,16 +187,14 @@ class Model:
         self.printOutput(response)
 
         if "Breakpoint 2" in response:
-            self.printOutput("SUCCESS Reached Feedback Line")
             self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill='#98FB98',width=1)
+            self.printOutput("SUCCESS Reached Feedback Line")
+            return True
         else:
             self.topLevel.trig_fault_progress.create_oval(1,1,20,20, outline='black',fill='red',width=1)
             self.printOutput("FAILED to reach FeedBack")
             self.connect()
-
-
-
-
+            return False
 
     def updateRegs(self):
         for reg in self.regList:
@@ -269,48 +248,18 @@ class Model:
 
             self.readGDB()
 
-            self.checkFeedback()
+            flag=self.checkFeedback()
 
-
-
-
-    def addBreakpoints1(self):
-
-        bpNum = 1
-        for trigger in self.faults:
-            bp = trigger.bp
-
-
-            if bp[0:2] == "0x":
-                self.pluginProcess.stdin.write("B *" + bp + "\n")
-            else: self.pluginProcess.stdin.write("B " + bp + "\n")
+            self.sendCommand("info R")
+            # index =  self.faults.index(item) + 1
+            # iid = self.topLevel.xml_table.insert("", index+1)
+            # self.topLevel.xml_table.tag_configure('pass', background='green')
+            # self.topLevel.xml_table.tag_configure('fail', background='red')
             
-
-            self.pluginProcess.stdin.write("ignore " + str(bpNum) + " " + trigger.lp + "\n")
-            
-            self.pluginProcess.stdin.write("commands\n")
-            
-            self.pluginProcess.stdin.write("info R\n")
-            
-
-            for reg in trigger.regList:
-                self.pluginProcess.stdin.write("set $" + reg + "=0\n")
-            
-            self.pluginProcess.stdin.write("del " + str(bpNum) + "\n")
-
-            if bpNum == len(self.faults):
-                self.pluginProcess.stdin.write("B add\n")
-            
-            self.pluginProcess.stdin.write("info R\n")
-
-            self.pluginProcess.stdin.write("c\n")
-
-            self.pluginProcess.stdin.write("end\n")
-
-            bpNum = bpNum + 1 
-            self.readGDB()
-        
-
+            if flag:
+            	self.topLevel.xml_table.tag_configure(item[0], background=green)
+            else:
+            	self.topLevel.xml_table.tag_configure(item[0], background=pink)
 
     def readReg(self):
         self.topLevel.reg_table.delete(*self.topLevel.reg_table.get_children())
