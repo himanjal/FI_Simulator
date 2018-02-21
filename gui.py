@@ -96,8 +96,8 @@ def onClick_sourcecode(event):
         return
     index = int(w.curselection()[0])
     value = w.get(index)
-    top.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=1)
     top.trig_fault_progress.update()
+    top.trig_fault_progress.delete(ALL)
     top.source_feedback_entry.config(background=green)
     top.source_feedback_entry.delete(0,END)
     top.source_feedback_entry.insert(0,index+1)
@@ -172,6 +172,8 @@ def open_xmlfile():
     importXML = True
     entity.printOutput("Connected < {0} > Successfully ... ".format(os.path.basename(filenameXML)))
     top.xml_table.delete(*top.xml_table.get_children())
+    if entity.feedbackLine is not None:
+        top.xml_addBreak.configure(state='normal')
     i = 1   
     for item in entity.getFaults():
         trig_list = (i,item[0])
@@ -276,7 +278,7 @@ class mainwindow:
         self.trig_fault_button.place(relx=0.99, rely=0.01, height=buttonHeight, width=buttonWidth, anchor=NE)
 
         self.trig_fault_progress = Canvas(self.machine_frame)
-        self.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=2)
+      #  self.trig_fault_progress.create_oval(1,1,20,20, outline=black,fill=black,width=2)
         self.trig_fault_progress.place(relx=0.7, rely=0.02, relheight=0.075, relwidth=0.05)
 
         self.machine_table = Listbox(self.machine_frame)
