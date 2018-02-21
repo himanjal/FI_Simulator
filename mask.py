@@ -7,7 +7,46 @@ The values are changed by the algorithm in the mask function
 and returned to the backend.py to set new register value
 
 '''
-def mask(registerValue):
+def mask(operation, registerValue, opValue = None):
+
+	flag = False
+	val = None
+	if registerValue[0:2] == "0x":
+		val = int(registerValue,16)
+		flag = True
+	else:
+		val = int(registerValue)
+
+
+
+
+	if operation == "flipAlt": 
+		newVal = flipAlternateBit(registerValue)
+	elif operation == "add": 
+		newVal = addVal(registerValue,opValue)
+	elif operation == "sub": 
+		newVal = subVal(registerValue,opValue)
+
+
+	if flag:
+		return hex(newVal)
+
+	return newVal
+
+
+
+
+
+def addVal(registerValue, opValue):
+	return registerValue + opValue
+
+
+def subVal(registerValue, opValue):
+	return registerValue - opValue
+
+
+
+def flipAlternateBit(registerValue):
 
 	val = None
 	if registerValue[0:2] == "0x":
@@ -31,11 +70,3 @@ def mask(registerValue):
 	flipped = bnum[0:bnum.find('b') + 1] + ''.join(newVal)
 	#print flipped
 	return int(flipped, 2)
-
-
-
-def bindigits(n, bits):
-	#s = bin(n & int("1"*bits, 2))[2:]
-    s = bin(n & int('0b' + '1' * 16, 2))
-    #return ("{0:0>%s}" % (bits)).format(s)
-    return s
