@@ -122,7 +122,8 @@ def open_cfile():
 
 # Add breakpoint to the registers
 def addBreakpoint():
-	entity.printOutput("Breakpoints Added Successfully")
+    entity.addBreakpoints()
+    entity.printOutput("Breakpoints Added Successfully")
 
 ### Register Table Functions ###
 
@@ -167,7 +168,7 @@ def open_xmlfile():
         trig_list = (i,item[0])
         top.xml_table.insert('', END, values=trig_list)
         for masks in item[1]:
-            mask_list = (masks.reg, masks.val, masks.op)
+            mask_list = (" ", " ", masks.reg, masks.val, masks.op)
             top.xml_table.insert('', END, values=mask_list)
         i = i + 1
     top.xml_addBreak.configure(state='normal')
