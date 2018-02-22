@@ -19,9 +19,9 @@ These instructions will get you a copy of the project up and running on your loc
   * files to import
 
 ### Running the Application
-
+'''
 $ bash run.py
-
+'''
 ### Running the Fault Injection Simulator
 
 1. Open the Fault Injection Simulator
