@@ -7,36 +7,35 @@ For our Major Qualifying Project at WPI, we created an application to automate f
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Files
-* gui.py
-  * main function to run
-* gui.tcl
-  * program to open with PAGE
+* run.sh
+  * script to run program
+* frontend.py
+  * design of the application
 * backend.py
-  * helper file for backend functions
-* Import Documents
-  * .XML and .C Files
-
-### Installations
-
-```
-install untangle
-```
+  * functionality of the application
+* mask.py
+  * masking the values of registers
+* documents
+  * files to import
 
 ### Running the Application
 
-$ python gui.py
+$ bash run.py
 
 ### Running the Fault Injection Simulator
 
-```
-1. Open XML File located in xml_documents directory
-```
-```
-2. Open C File located in c_documents directory
-```
-```
-3. Press Enter Button
-```
+1. Open the Fault Injection Simulator
+2. Open Files > Source File. Select your file (test.c) to test for glitching.
+3. Open FIles > XML File. Select your file (breakpoint_data.xml) to set up breakpoints.
+4. XML Table - (optional) Click on Execute Breakpoints to see if the given address are valid or invalid. The progress is given in the GNU Debugger.
+5. Register Table - (optional) 
+ a. Click on a Register line to update the value manually
+ b. Refresh the Registers manually
+6. Source Code - Click on a line (line 31) or input on the Line No. field and Update Feedback.
+7. Machine Code - (optional) Click on Machine Code line(s) to test the trigger. The progress is given in the GNU Debugger.
+8. Select Registers that you wish to test on
+9. Trigger Fault to start the test
+
 
 ## Built With
 
@@ -45,60 +44,51 @@ $ python gui.py
 * [Ubuntu]() - operating system
 * [ChipWhisperer]() - information from chips to feed into the application
 
-## History v1.x
+## History
 
-### Version 1.5
-* Update Registers
+## Version 1.0
+* Final Submission for Project
+* Colors
+* Select which registers to trigger on
+* Trigger Fault and Execute Breakpoints Progress
+
+### Version 0.6
+* Update Registers manually
 * Feedback
-* mask WORK ON
+* mask register values
 * listbox columns
 
-### Version 1.4
+### Version 0.5
 * Highlight source code and mirror on machine code
 * Trigger Fault goes through lines (TODO)
 * Refresh button for registers
 * Redesign
 
-### Version 1.3
+### Version 0.4
 * View Machine Code
 * Print selected Program lines
 * Trigger Fault Button
 * Command Line Enter Key/Button. Disable until Connected to server
 
-### Version 1.2
+### Version 0.3
 * Disable buttons before step is needed
 * Set registers
 * info R and info B
 * Registers read on GUI
 
-### Version 1.1
+### Version 0.2
 * Upload C file
 * Seperated GUI and Backend
 * Output on GDB from C file
 * Update User Interface
 
-### Version 1.0
+### Version 0.1
 * User Interface
 * Title, Open Buttons
 * XML Table, Registers, GDB Output, Breakpoints
 * Open XML insert into table and prints file name
 
-## Tasks
-- [x] Complete GUI Layout
-- [x] Import XML file onto XML table
-- [x] Import C file onto "GDB Output"
-- [x] Seperate into Frontend and Backend
-- [x] Connect button when both XML and C files are present with connect button
-- [X] Enter button working
-- [X] Registers printed
-- [X] Code clickable
-- [ ] View Machine Code when clicking Source code line
-- [ ] Valid information for testing
-
-- [ ] Task
-
 ## Authors
-
 * Jon Metzger
 * Himanjal Sharma
 * Maryann O'Connell
