@@ -1,3 +1,3 @@
-python gui.py
+python frontend.py
 
 find . -name '*.pyc' -delete

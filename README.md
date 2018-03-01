@@ -2,6 +2,11 @@
 
 For our Major Qualifying Project at WPI, we created an application to automate fault injection when there is a glitch. to collect information on a low level. This enabled us to then see if glitching would occur and the registers stay the same.
 
+## Authors
+* Jon Metzger
+* Maryann O'Connell
+* Himanjal Sharma
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -15,12 +20,15 @@ These instructions will get you a copy of the project up and running on your loc
   * functionality of the application
 * mask.py
   * masking the values of registers
+* launchQemu.py
+  * connect to the server (can be later changed to Synopsis VDK)
 * documents
   * files to import
 
 ### Running the Application
-
+```
 $ bash run.py
+```
 
 ### Running the Fault Injection Simulator
 
@@ -88,11 +96,6 @@ $ bash run.py
 * XML Table, Registers, GDB Output, Breakpoints
 * Open XML insert into table and prints file name
 
-## Authors
-* Jon Metzger
-* Himanjal Sharma
-* Maryann O'Connell
-
 ## License
 
 This project was completed under WPI and NVIDIA and cannot be used without permission from the authors.
@@ -102,6 +105,3 @@ This project was completed under WPI and NVIDIA and cannot be used without permi
 * NVIDIA - Vincent Chen and Andrew Tran
 * WPI - Professor Claypool
 * Oakwood Apartments
-
-Template taken from: https://gist.github.com/PurpleBooth/109311bb0361f32d87a2#file-readme-template-md
-
